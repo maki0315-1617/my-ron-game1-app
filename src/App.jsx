@@ -91,9 +91,9 @@ export default function Page() {
     
     // 【位置反転】ロン君が下（キッカー）、人間（GK）が上（ゴール）
     setBallLeft('50%');
-    setBallTop('85%'); // ボールはロン君の足元（下）からスタート
+    setBallTop('85%'); 
     setKeeperLeft('50%');
-    setKeeperTop('30%'); // 人間は上のゴールラインに立つ
+    setKeeperTop('30%'); 
 
     // ロン君のシュートコースをあらかじめ裏で決定
     const courses = ['左', '中央', '右'];
@@ -114,7 +114,7 @@ export default function Page() {
         // 【人間の攻撃と同じ動き】ボールが下から上に向かって飛んでいく！
         const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
         setBallLeft(posMap[ronChoice]);
-        setBallTop('30%'); // 上のゴールへ向かう
+        setBallTop('30%'); 
         
         clearInterval(timer);
       }
@@ -314,7 +314,7 @@ export default function Page() {
               </>
             )}
 
-            {/* 🛡️ あなたの守備時の3分割クリックエリア（上にとんでくるボールをクリックで弾く！） */}
+            {/* 🛡️ あなたの守備時の3分割クリックエリア */}
             {gameState === 'defend_click' && (
               <>
                 <div onClick={() => handlePitchClickDefend('左')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'rgba(255,255,255,0.05)', borderRight: '1px dashed rgba(255,255,255,0.2)' }} title="左を守る！" />
