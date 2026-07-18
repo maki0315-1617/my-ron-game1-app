@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function Page() {
   const [isMounted, setIsMounted] = useState(false);
+  // タイマーの参照を保持するRef（クラッシュ防止の最重要パーツ）
+  const timerRef = useRef(null);
 
   // ゲーム状態管理
   // 'setup', 'attack', 'attack_result', 'countdown', 'defend_click', 'defend_result', 'game_over'
@@ -31,12 +33,26 @@ export default function Page() {
   // ロン君がどこに蹴るかの内部状態
   const [ronTargetCourse, setRonTargetCourse] = useState('中央');
 
+  // マウント・アンマウント時の処理
   useEffect(() => {
     setIsMounted(true);
+    return () => {
+      // 画面が閉じられたらタイマーを確実に消去
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, []);
+
+  // 既存のタイマーを安全にクリアする関数
+  const clearActiveTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
 
   // ゲームスタート（または各回戦の開始）
   const handleStart = () => {
+    clearActiveTimer();
     setGameState('attack');
     setMessage(`⚽ 第 ${currentRound + 1}回戦 あなたの攻撃：上のゴール枠内の好きなところ（左・中央・右）をクリックしてシュート！`);
     setBallLeft('50%');
@@ -79,8 +95,9 @@ export default function Page() {
     setGameState('attack_result');
   };
 
-  // 守備フェーズへの切り替え
+  // 守備フェーズへの切り替え（タイマー制御付き）
   const startDefendPhase = () => {
+    clearActiveTimer();
     setGameState('countdown');
     setCountdownNum(3);
     setMessage('🛡️ ロン君の攻撃ターン！位置が入れ替わります。身構えてください！');
@@ -95,7 +112,8 @@ export default function Page() {
     setRonTargetCourse(ronChoice);
 
     let count = 3;
-    const timer = setInterval(() => {
+    // タイマーIDをRefに退避して管理
+    timerRef.current = setInterval(() => {
       count -= 1;
       if (count > 0) {
         setCountdownNum(count);
@@ -108,7 +126,7 @@ export default function Page() {
         setBallLeft(posMap[ronChoice]);
         setBallTop('30%'); 
         
-        clearInterval(timer);
+        clearActiveTimer();
       }
     }, 1000);
   };
@@ -145,6 +163,7 @@ export default function Page() {
 
   // 【改修箇所】ボタンクリックで初期画面（setup）に戻し、テキストと回戦のみを更新
   const advanceAfterDefend = () => {
+    clearActiveTimer();
     const nextRound = currentRound + 1;
     setCurrentRound(nextRound);
 
@@ -158,14 +177,14 @@ export default function Page() {
     // 勝敗判定によるメッセージ分岐
     if (playerScore >= 3 && ronScore < 3) {
       setGameState('game_over');
-      setMessage(`🏆 試合終了！あなたの勝ちです！ 🎉（結果：${playerScore} 对 ${ronScore}）`);
+      setMessage(`🏆 試合終了！あなたの勝ちです！ 🎉（結果：${playerScore} 対 ${ronScore}）`);
     } else if (ronScore >= 3 && playerScore < 3) {
       setGameState('game_over');
-      setMessage(`🐈 試合終了！ロン君の勝ちです…（結果：${playerScore} 对 ${ronScore}）`);
+      setMessage(`🐈 試合終了！ロン君の勝ちです…（結果：${playerScore} 対 ${ronScore}）`);
     } else if (nextRound >= 5) {
       setGameState('game_over');
       const finalWinner = playerScore > ronScore ? 'あなたの勝ち！🎉' : playerScore < ronScore ? 'ロン君の勝ち 🐈' : '引き分け 🤝';
-      setMessage(`🏆 5回戦すべて終了しました！ 結果：${finalWinner}（${playerScore} 对 ${ronScore}）`);
+      setMessage(`🏆 5回戦すべて終了しました！ 結果：${finalWinner}（${playerScore} 対 ${ronScore}）`);
     } else {
       // テキストのみを次の回戦用に更新
       setMessage(`第 ${currentRound + 1}回戦が終了しました！下の「キックオフ！」ボタンを押すと、第 ${nextRound + 1}回戦が始まります。`);
@@ -174,6 +193,7 @@ export default function Page() {
 
   // 完全リセット
   const resetGame = () => {
+    clearActiveTimer(); // リセット時も確実にタイマーを殺す
     setPlayerScore(0);
     setRonScore(0);
     setCurrentRound(0);
