@@ -61,7 +61,7 @@ export default function RonPkGame() {
 
   // 1. あなたの攻撃（ゴールエリアをクリックしたとき）
   const handleAttack = (e) => {
-    // 攻撃ターン以外は何もしない（クラッシュを絶対に防ぐ安全弁）
+    // 攻撃ターン以外は何もしない
     if (gameState !== 'attack') return;
     if (!e || !e.currentTarget) return;
 
@@ -224,7 +224,7 @@ export default function RonPkGame() {
       }}>
         {gameState === 'attack' && '⚔️ あなたの攻撃ターン'}
         {gameState === 'defend_ready' && '🛡️ ロン君の攻撃（あなたの守備ターン）'}
-        {gameState={{ color: '#2e7d32' }} === 'game_over' && `🏆 試合終了 【勝者: ${winner}】`}
+        {gameState === 'game_over' && `🏆 試合終了 【勝者: ${winner}】`}
         <div style={{ fontWeight: 'normal', fontSize: '12px', color: '#444', marginTop: '4px' }}>
           {currentActionMessage}
         </div>
@@ -270,7 +270,7 @@ export default function RonPkGame() {
             top: `${goalHeight + 10}px`,
             width: '100%',
             height: '2px',
-            backgroundColor: 'rgba(255,255,255,0.4)' // ペナルティエリアのライン風
+            backgroundColor: 'rgba(255,255,255,0.4)' // ペナルティエリア的原ライン風
           }}></div>
 
           {/* キーパー (攻撃時は黒猫ロン君 🐈‍⬛ / 守備時は人間選手 🧍) */}
