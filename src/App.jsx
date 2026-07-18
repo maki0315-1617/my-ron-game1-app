@@ -61,6 +61,9 @@ export default function RonPkGame() {
 
   // 1. あなたの攻撃（ゴールエリアをクリックしたとき）
   const handleAttack = (e) => {
+    e.preventDefault();  // ブラウザのデフォルトの挙動を防止
+    e.stopPropagation(); // 親要素へのイベント伝播を遮断
+
     if (gameState !== 'attack') return;
 
     const rect = e.currentTarget.getBoundingClientRect();
@@ -103,7 +106,6 @@ export default function RonPkGame() {
     const newLog = `【${currentRound + 1}回戦・あなた攻撃】 → ${resultMessage}`;
     setLogs(prev => [newLog, ...prev]);
 
-    // 攻撃終了時点で即勝利が決まるかチェック（守備を待たずに3点差など、ただし簡易化のため通常フローへ）
     setCurrentActionMessage(`${resultMessage} 次は守備の番です。ロン君のシュートを止めましょう！`);
     setGameState('defend_ready');
   };
@@ -232,7 +234,15 @@ export default function RonPkGame() {
       {/* メインゲームピッチ (ゴールとグラウンド) */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '15px' }}>
         <div 
-          onClick={handleAttack}
+          onClick={(e) => {
+            // 攻撃ターン以外は何もしない（イベントを完全に遮断する）
+            if (gameState !== 'attack') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+            handleAttack(e);
+          }}
           style={{
             width: `${goalWidth}px`,
             height: `${goalHeight * 1.6}px`, // ゴール(180px) + グラウンド(108px) = 288px
