@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 
 export default function Page() {
   const [isMounted, setIsMounted] = useState(false);
-  // タイマーの参照を保持するRef（クラッシュ防止の最重要パーツ）
   const timerRef = useRef(null);
 
   // ゲーム状態管理
@@ -33,16 +32,13 @@ export default function Page() {
   // ロン君がどこに蹴るかの内部状態
   const [ronTargetCourse, setRonTargetCourse] = useState('中央');
 
-  // マウント・アンマウント時の処理
   useEffect(() => {
     setIsMounted(true);
     return () => {
-      // 画面が閉じられたらタイマーを確実に消去
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
 
-  // 既存のタイマーを安全にクリアする関数
   const clearActiveTimer = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -61,7 +57,7 @@ export default function Page() {
     setKeeperTop('30%');
   };
 
-  // あなたの攻撃（クリックシュート）
+  // あなたの攻撃
   const handlePitchClickAttack = (course) => {
     if (gameState !== 'attack') return;
 
@@ -95,7 +91,7 @@ export default function Page() {
     setGameState('attack_result');
   };
 
-  // 守備フェーズへの切り替え（タイマー制御付き）
+  // 守備フェーズへの切り替え
   const startDefendPhase = () => {
     clearActiveTimer();
     setGameState('countdown');
@@ -112,7 +108,6 @@ export default function Page() {
     setRonTargetCourse(ronChoice);
 
     let count = 3;
-    // タイマーIDをRefに退避して管理
     timerRef.current = setInterval(() => {
       count -= 1;
       if (count > 0) {
@@ -161,39 +156,45 @@ export default function Page() {
     setGameState('defend_result');
   };
 
-  // 【改修箇所】ボタンクリックで初期画面（setup）に戻し、テキストと回戦のみを更新
+  // ボタンクリックで初期画面に戻し、その後次のステップを安全に適用する
   const advanceAfterDefend = () => {
     clearActiveTimer();
-    const nextRound = currentRound + 1;
-    setCurrentRound(nextRound);
-
-    // ピッチ上の配置と表示状態を完全に初期状態（setup）へ戻す
+    
+    // 1. ピッチ上の配置とゲーム状態を完全に「setup（初期画面）」へ戻す
     setBallLeft('50%');
     setBallTop('85%');
     setKeeperLeft('50%');
     setKeeperTop('30%');
     setGameState('setup');
 
-    // 勝敗判定によるメッセージ分岐
+    // 2. 勝敗および回戦の判定を行い、メッセージを更新する
     if (playerScore >= 3 && ronScore < 3) {
       setGameState('game_over');
       setMessage(`🏆 試合終了！あなたの勝ちです！ 🎉（結果：${playerScore} 対 ${ronScore}）`);
-    } else if (ronScore >= 3 && playerScore < 3) {
+      return;
+    }
+    if (ronScore >= 3 && playerScore < 3) {
       setGameState('game_over');
       setMessage(`🐈 試合終了！ロン君の勝ちです…（結果：${playerScore} 対 ${ronScore}）`);
-    } else if (nextRound >= 5) {
+      return;
+    }
+
+    const nextRound = currentRound + 1;
+    if (nextRound >= 5) {
       setGameState('game_over');
       const finalWinner = playerScore > ronScore ? 'あなたの勝ち！🎉' : playerScore < ronScore ? 'ロン君の勝ち 🐈' : '引き分け 🤝';
       setMessage(`🏆 5回戦すべて終了しました！ 結果：${finalWinner}（${playerScore} 対 ${ronScore}）`);
-    } else {
-      // テキストのみを次の回戦用に更新
-      setMessage(`第 ${currentRound + 1}回戦が終了しました！下の「キックオフ！」ボタンを押すと、第 ${nextRound + 1}回戦が始まります。`);
+      return;
     }
+
+    // 次の回戦へカウントを進め、初期画面用のテキストをセット
+    setCurrentRound(nextRound);
+    setMessage(`第 ${currentRound + 1}回戦が終了しました！下の「キックオフ！」ボタンを押すと、第 ${nextRound + 1}回戦が始まります。`);
   };
 
   // 完全リセット
   const resetGame = () => {
-    clearActiveTimer(); // リセット時も確実にタイマーを殺す
+    clearActiveTimer();
     setPlayerScore(0);
     setRonScore(0);
     setCurrentRound(0);
@@ -224,7 +225,7 @@ export default function Page() {
           <tr style={{ backgroundColor: '#f8f9fa' }}>
             <th style={{ padding: '8px', border: '1px solid #dddddd', fontWeight: 'bold' }}>チーム / 回戦</th>
             {[1, 2, 3, 4, 5].map((r) => (
-              <th key={r} style={{ padding: '8px', border: '1px solid #dddddd', width: '50px', backgroundColor: currentRound === r - 1 && gameState !== 'game_over' ? '#edf2f7' : 'transparent', fontWeight: currentRound === r - 1 ? 'bold' : 'normal' }}>
+              <th key={r} style={{ padding: '8px', border: '1px solid #dddddd', width: '50px', backgroundColor: currentRound === r - 1 && gameState !== 'game_over' ? '#edf2f7' : 'transparent', fontWeight: currentRound === r - 1 && gameState !== 'game_over' ? 'bold' : 'normal' }}>
                 {r}回{currentRound === r - 1 && gameState !== 'game_over' ? '★' : ''}
               </th>
             ))}
