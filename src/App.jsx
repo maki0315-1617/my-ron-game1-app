@@ -234,6 +234,7 @@ export default function RonPkGame() {
           style={{
             width: goalWidth + 'px',
             height: (goalHeight * 1.6) + 'px', 
+            // 攻撃時は明るい芝生（ゴールの外側）、守備時は暗いスタジアム・ネット奥（ゴールの内側）
             background: gameState === 'attack' ? '#2e7d32' : '#114016', 
             position: 'relative',
             cursor: gameState === 'attack' ? 'crosshair' : 'not-allowed',
@@ -243,23 +244,24 @@ export default function RonPkGame() {
             transition: 'background 0.3s ease'
           }}
         >
-          {/* ゴールポスト */}
+          {/* ゴールポスト（ブラウザ互換性の高いシンプルなプロパティに修正） */}
           <div style={{
             position: 'absolute',
             top: '10px',
             left: '20px',
             width: (goalWidth - 40) + 'px',
             height: goalHeight + 'px',
-            border: gameState === 'attack' ? '5px solid #ffffff' : '5px solid #b0bec5', 
-            borderBottom: 'none',
+            // 攻撃時は手前にポスト（白）、守備時は内側から見ているためポストを影色に
+            borderTop: gameState === 'attack' ? '5px solid #ffffff' : '5px solid #78909c',
+            borderLeft: gameState === 'attack' ? '5px solid #ffffff' : '5px solid #78909c',
+            borderRight: gameState === 'attack' ? '5px solid #ffffff' : '5px solid #78909c',
             boxSizing: 'border-box',
-            background: gameState === 'attack' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.25)', 
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)',
-            backgroundSize: '12px 12px',
+            // 攻撃時はネット内が明るく透過、守備時は背後がスタジアムの暗がりになるよう調整
+            background: gameState === 'attack' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.35)', 
             borderRadius: '4px 4px 0 0',
             transition: 'all 0.3s ease'
           }}>
-            <div style={{ position: 'absolute', bottom: '-2px', left: '-5px', right: '-5px', height: '2px', backgroundColor: '#fff' }}></div>
+            <div style={{ position: 'absolute', bottom: '0px', left: '0px', right: '0px', height: '2px', backgroundColor: 'rgba(255,255,255,0.4)' }}></div>
           </div>
 
           {/* グラウンドライン */}
