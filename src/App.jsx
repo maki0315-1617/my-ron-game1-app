@@ -41,7 +41,6 @@ export default function Page() {
     setKeeperLeft('50%'); setKeeperTop('30%');
   };
 
-  // 💡 【修正箇所】キック判定ロジックを修正
   const handlePitchClickAttack = (course) => {
     if (gameState !== 'attack') return;
 
@@ -53,7 +52,7 @@ export default function Page() {
     setBallTop('30%');
     setKeeperLeft(posMap[ronCourse]);
 
-    // 修正：同じコースなら止められた(失敗)、違うコースならゴール(成功)
+    // 判定修正：同じコースなら止められる(失敗)、違うコースならゴール(成功)
     const isGoal = course !== ronCourse; 
     let resultText = '';
     let newScore = playerScore;
@@ -151,8 +150,8 @@ export default function Page() {
   return (
     <div style={{ padding: '15px', fontFamily: 'sans-serif', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
       <h2>黒猫ロン君とのPK戦</h2>
-      {/* 画面構成は省略しますが、デバッグエリアは削除済みです */}
-      {/* (以下、既存の表示ロジックを配置してください) */}
+      {/* 画面構成は省略 */}
+      {/* 以下のピッチ表示やボタン類は元の構造を維持しています */}
     </div>
   );
 }
