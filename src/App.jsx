@@ -61,9 +61,13 @@ export default function RonPkGame() {
 
   // 1. あなたの攻撃（ゴールエリアをクリックしたとき）
   const handleAttack = (e) => {
-    e.preventDefault();  // ブラウザのデフォルトの挙動を防止
-    e.stopPropagation(); // 親要素へのイベント伝播を遮断
+    // イベントオブジェクトが存在する場合のみ、安全にブラウザのデフォルト挙動と伝播をストップ
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
 
+    // 攻撃ターン以外は何もしない（ここで完全に弾く）
     if (gameState !== 'attack') return;
 
     const rect = e.currentTarget.getBoundingClientRect();
@@ -151,7 +155,7 @@ export default function RonPkGame() {
     const newLog = `【${currentRound + 1}回戦・ロン君攻撃】 → ${isSaved ? 'あなたがセーブ！' : 'ロン君ゴール！'}`;
     setLogs(prev => [newLog, ...prev]);
 
-    // 1往復終わるごとに試合終了判定を行う
+    // 1往跨終わるごとに試合終了判定を行う
     const isOver = checkGameOver(playerScore, nextRonScore, nextRound, true);
 
     if (!isOver) {
@@ -234,15 +238,7 @@ export default function RonPkGame() {
       {/* メインゲームピッチ (ゴールとグラウンド) */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '15px' }}>
         <div 
-          onClick={(e) => {
-            // 攻撃ターン以外は何もしない（イベントを完全に遮断する）
-            if (gameState !== 'attack') {
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-            handleAttack(e);
-          }}
+          onClick={handleAttack}
           style={{
             width: `${goalWidth}px`,
             height: `${goalHeight * 1.6}px`, // ゴール(180px) + グラウンド(108px) = 288px
