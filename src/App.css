@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: system-ui;
-  background: #e6f2ff; /* 明るい青空 */
+  background: #e6f2ff;
   color: #333;
 }
 
@@ -11,7 +11,6 @@ body {
   padding: 24px;
 }
 
-/* 状況表示（攻撃・守備） */
 .status-bar {
   font-size: 1.6rem;
   font-weight: bold;
@@ -19,19 +18,17 @@ body {
   margin-bottom: 10px;
 }
 
-/* ゴールエリア（芝生） */
 .goal-area {
   position: relative;
   width: 100%;
   height: 340px;
-  background: #4caf50; /* 芝生 */
+  background: #4caf50;
   border: 3px solid #2e7d32;
   border-radius: 8px;
   margin-bottom: 20px;
   overflow: hidden;
 }
 
-/* ゴール枠 */
 .goal-frame {
   position: absolute;
   top: 20px;
@@ -43,7 +40,6 @@ body {
   border-radius: 4px;
 }
 
-/* プレイヤー（あなた） */
 .player {
   position: absolute;
   bottom: 10px;
@@ -51,10 +47,8 @@ body {
   width: 90px;
   height: 90px;
   background: url("https://i.imgur.com/0ZfQFqE.png") no-repeat center/contain;
-  transition: transform 0.5s ease-out;
 }
 
-/* ロン君（黒猫） */
 .ron {
   position: absolute;
   top: 80px;
@@ -66,7 +60,6 @@ body {
   transition: transform 0.5s ease-out;
 }
 
-/* ボール */
 .ball {
   position: absolute;
   bottom: 60px;
@@ -78,29 +71,38 @@ body {
   transition: transform 0.6s ease-out;
 }
 
-/* ゴール演出 */
 .goal-flash {
   animation: flash 0.4s ease-out;
 }
 
 @keyframes flash {
-  0% { background: rgba(255,255,0,0.4); }
-  100% { background: transparent; }
+  0% {
+    background: rgba(255, 255, 0, 0.4);
+  }
+  100% {
+    background: transparent;
+  }
 }
 
-/* セーブ演出 */
 .save-shake {
   animation: shake 0.3s ease-out;
 }
 
 @keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  50% { transform: translateX(10px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
-/* カウントダウン */
 .countdown {
   font-size: 1.4rem;
   font-weight: bold;
@@ -108,7 +110,6 @@ body {
   margin-bottom: 10px;
 }
 
-/* 準備ボタン */
 .ready-button {
   display: block;
   margin: 10px auto;
@@ -125,7 +126,6 @@ body {
   background: #2196f3;
 }
 
-/* ログ */
 .log ul {
   list-style: none;
   padding-left: 0;
