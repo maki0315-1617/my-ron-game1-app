@@ -7,7 +7,7 @@ export default function Page() {
   const pitchRef = useRef(null);
 
   // ゲーム状態管理
-  // 'setup', 'attack', 'attack_result', 'countdown', 'defend_click', 'game_over'
+  // 'setup', 'attack', 'attack_result', 'countdown', 'defend_click', 'defend_result', 'game_over'
   const [gameState, setGameState] = useState('setup'); 
   
   const [playerScore, setPlayerScore] = useState(0);
@@ -111,7 +111,7 @@ export default function Page() {
         setMessage('🏃‍♂️ ロン君が蹴った！上のゴール枠内（左・中央・右）をクリックしてシュートを止めて！');
         setGameState('defend_click');
         
-        // 【人間の攻撃と同じ動き】ボールが下から上に向かって飛んでいく！
+        // ボールが下から上に向かって飛んでいく！
         const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
         setBallLeft(posMap[ronChoice]);
         setBallTop('30%'); 
@@ -121,7 +121,7 @@ export default function Page() {
     }, 1000);
   };
 
-  // あなたの守備（上のゴールをクリックして止める）
+  // あなたの守備（上のゴールをクリックしてその場で即判定）
   const handlePitchClickDefend = (course) => {
     if (gameState !== 'defend_click') return;
 
@@ -148,31 +148,37 @@ export default function Page() {
     setRonHistory(nextRonHistory);
     const rNum = currentRound + 1;
     setLogs(prev => [`【${rNum}回戦・ロン君の攻撃】 ロン君の狙い:${ronTargetCourse} ➔ あなたの守備:${course} 【${isSaved ? 'セーブ成功' : '失点'}】`, ...prev]);
+    
+    setMessage(`${resultText} ➔ ロン君の攻撃終了。下のボタンを押して次の進捗に進めてください。`);
+    setGameState('defend_result');
+  };
 
+  // 守備結果を確認した後に、次の回戦へ進むかゲームオーバー判定をするボタンの処理
+  const advanceAfterDefend = () => {
     const nextRound = currentRound + 1;
     setCurrentRound(nextRound);
 
     // 勝敗チェック
-    if (playerScore >= 3 && newRonScore < 3) {
+    if (playerScore >= 3 && ronScore < 3) {
       setGameState('game_over');
-      setMessage(`🏆 試合終了！あなたの勝ちです！ 🎉（結果：${playerScore} 対 ${newRonScore}）`);
-    } else if (newRonScore >= 3 && playerScore < 3) {
+      setMessage(`🏆 試合終了！あなたの勝ちです！ 🎉（結果：${playerScore} 対 ${ronScore}）`);
+    } else if (ronScore >= 3 && playerScore < 3) {
       setGameState('game_over');
-      setMessage(`🐈 試合終了！ロン君の勝ちです…（結果：${playerScore} 対 ${newRonScore}）`);
+      setMessage(`🐈 試合終了！ロン君の勝ちです…（結果：${playerScore} 対 ${ronScore}）`);
     } else if (nextRound >= 5) {
       setGameState('game_over');
-      const finalWinner = playerScore > newRonScore ? 'あなたの勝ち！🎉' : playerScore < newRonScore ? 'ロン君の勝ち 🐈' : '引き分け 🤝';
-      setMessage(`🏆 5回戦すべて終了しました！ 結果：${finalWinner}（${playerScore} 対 ${newRonScore}）`);
+      const finalWinner = playerScore > ronScore ? 'あなたの勝ち！🎉' : playerScore < ronScore ? 'ロン君の勝ち 🐈' : '引き分け 🤝';
+      setMessage(`🏆 5回戦すべて終了しました！ 結果：${finalWinner}（${playerScore} 対 ${ronScore}）`);
     } else {
+      // 次のラウンドの攻撃へ移行
       setGameState('attack');
-      setMessage(`${resultText} ➔ 次は第 ${nextRound + 1}回戦です！位置が元に戻ります。ゴール内をクリックしてシュート！`);
-      // 次のターン（あなたの攻撃）用に初期位置へ戻す
-      setTimeout(() => {
-        setBallLeft('50%');
-        setBallTop('85%');
-        setKeeperLeft('50%');
-        setKeeperTop('30%');
-      }, 1500);
+      setMessage(`次は第 ${nextRound + 1}回戦です！位置が元に戻ります。上のゴール内をクリックしてシュート！`);
+      
+      // 次のターン（あなたの攻撃）用にピッチ上の初期位置へ戻す
+      setBallLeft('50%');
+      setBallTop('85%');
+      setKeeperLeft('50%');
+      setKeeperTop('30%');
     }
   };
 
@@ -192,7 +198,7 @@ export default function Page() {
     setKeeperTop('30%');
   };
 
-  const isDefendMode = (gameState === 'countdown' || gameState === 'defend_click');
+  const isDefendMode = (gameState === 'countdown' || gameState === 'defend_click' || gameState === 'defend_result');
 
   if (!isMounted) {
     return <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif' }}>読み込み中...</div>;
@@ -217,8 +223,8 @@ export default function Page() {
         </thead>
         <tbody>
           <tr>
-            <td style={{ padding: '8px', border: '1px solid #dddddd', fontWeight: 'bold', textAlign: 'left', backgroundColor: gameState === 'attack' ? '#e3f2fd' : 'transparent' }}>
-              あなた <span style={{ fontSize: '10px', color: '#2b6cb0', display: 'block' }}>{gameState === 'attack' ? '⚔️ シュート中' : '(攻)'}</span>
+            <td style={{ padding: '8px', border: '1px solid #dddddd', fontWeight: 'bold', textAlign: 'left', backgroundColor: (gameState === 'attack' || gameState === 'attack_result') ? '#e3f2fd' : 'transparent' }}>
+              あなた <span style={{ fontSize: '10px', color: '#2b6cb0', display: 'block' }}>{(gameState === 'attack' || gameState === 'attack_result') ? '⚔️ シュート中' : '(攻)'}</span>
             </td>
             {playerHistory.map((h, i) => (
               <td key={i} style={{ padding: '8px', border: '1px solid #dddddd', fontSize: '14px', fontWeight: 'bold', color: h === '〇' ? '#e53e3e' : '#4a5568' }}>
@@ -261,6 +267,11 @@ export default function Page() {
         {gameState === 'attack_result' && (
           <button onClick={startDefendPhase} style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold', backgroundColor: '#ff9800', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
             🛡️ 守備フェーズへ進む (位置交代＆カウントダウン)
+          </button>
+        )}
+        {gameState === 'defend_result' && (
+          <button onClick={advanceAfterDefend} style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold', backgroundColor: '#4caf50', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+            ⏭️ 判定を確認して次のフェーズへ進む
           </button>
         )}
         {gameState === 'game_over' && (
@@ -310,7 +321,7 @@ export default function Page() {
               <>
                 <div onClick={() => handlePitchClickAttack('左')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
                 <div onClick={() => handlePitchClickAttack('中央')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
-                <div onClick={() => handlePitchClickAttack('右')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
+                <div onClick={() => handlePitchClickAttack('right')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} onClick={() => handlePitchClickAttack('右')} />
               </>
             )}
 
