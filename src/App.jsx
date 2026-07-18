@@ -1,8 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function RonPkGame() {
+  // --- ハイドレーション（画面真っ白）対策 ---
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // ゲームの状態: 'attack' (プレイヤーの攻撃), 'defend_ready' (守備待ち), 'game_over' (終了)
   const [gameState, setGameState] = useState('attack'); 
   const [logs, setLogs] = useState([]);
@@ -162,6 +168,11 @@ export default function RonPkGame() {
     setKeeperPos({ x: 50, y: 35 });
     setCurrentActionMessage('ゴール内をクリックしてシュート！');
   };
+
+  // 画面の準備ができるまでは、真っ白クラッシュを防ぐために何も出さない、または簡易ローディング
+  if (!isMounted) {
+    return <div style={{ padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>読み込み中...</div>;
+  }
 
   return (
     <div style={{ padding: '15px', fontFamily: 'sans-serif', maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
