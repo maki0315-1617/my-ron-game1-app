@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 
-const HISTORY_KEY = "ron-pk-history";
-
 const initialState = {
   playerScore: 0,
   ronScore: 0,
@@ -16,8 +14,7 @@ const initialState = {
 
 function App() {
   const [state, setState] = useState(initialState);
-  const [message, setMessage] = useState("黒猫ロン君がゴール前で構えている…緊迫したPK戦が始まる。");
-  const [history, setHistory] = useState([]);
+  const [message, setMessage] = useState("黒猫ロン君がゴール前で構えている…PK戦が始まる。");
 
   const [ballPos, setBallPos] = useState({ x: 0, y: 0 });
   const [ronPos, setRonPos] = useState({ x: 0, y: 0 });
@@ -26,13 +23,10 @@ function App() {
   const [goalFlash, setGoalFlash] = useState(false);
   const [saveShake, setSaveShake] = useState(false);
 
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(null);
   const timerRef = useRef(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem(HISTORY_KEY);
-    if (stored) setHistory(JSON.parse(stored));
-  }, []);
+  const [ready, setReady] = useState(false);
 
   const startCountdown = () => {
     setCountdown(5);
@@ -62,20 +56,6 @@ function App() {
     setTimeout(handleRonKick, 900);
   };
 
-  const resetGame = () => {
-    setState(initialState);
-    setMessage("新たなPK戦が始まる… ロン君の瞳が鋭く光る。");
-    setBallPos({ x: 0, y: 0 });
-    setRonPos({ x: 0, y: 0 });
-    setPlayerPos({ x: 0, y: 0 });
-    clearInterval(timerRef.current);
-    startCountdown();
-  };
-
-  useEffect(() => {
-    startCountdown();
-  }, []);
-
   const animateKick = (ballX, ballY, ronX, ronY, isGoal) => {
     setBallPos({ x: ballX, y: ballY });
     setRonPos({ x: ronX, y: ronY });
@@ -90,7 +70,7 @@ function App() {
   };
 
   const handlePlayerKick = (e) => {
-    if (!state.isPlayerTurn || state.isFinished) return;
+    if (!state.isPlayerTurn || state.isFinished || !ready) return;
 
     clearInterval(timerRef.current);
 
@@ -106,7 +86,7 @@ function App() {
     animateKick(clickX, clickY, ronGuessX, ronGuessY, isGoal);
 
     const logEntry = `攻撃：あなた → (${clickX}, ${clickY}) / 守備：ロン君 → (${ronGuessX}, ${ronGuessY}) → ${
-      isGoal ? "ゴール！" : "セーブ！"
+      isGoal ? "〇 ゴール！" : "× セーブ！"
     }`;
 
     setState((prev) => ({
@@ -134,7 +114,7 @@ function App() {
       animateKick(ronX, ronY, playerGuessX, playerGuessY, isGoal);
 
       const logEntry = `攻撃：ロン君 → (${ronX}, ${ronY}) / 守備：あなた → (${playerGuessX}, ${playerGuessY}) → ${
-        isGoal ? "ゴール…" : "止めた！"
+        isGoal ? "× ゴール…" : "〇 止めた！"
       }`;
 
       let newPlayerScore = prev.playerScore;
@@ -183,6 +163,12 @@ function App() {
       };
     });
 
+    setReady(false);
+    setCountdown(null);
+  };
+
+  const handleReady = () => {
+    setReady(true);
     startCountdown();
   };
 
@@ -190,7 +176,20 @@ function App() {
     <div className="app">
       <h1>黒猫ロン君とのPK戦（クリックで蹴る版）</h1>
 
-      <div className="countdown">残り時間：{countdown}秒</div>
+      {/* 状況表示 */}
+      <div className="status-bar">
+        {state.isPlayerTurn ? "あなたの攻撃：〇" : "ロン君の攻撃：×"}
+      </div>
+
+      {/* カウントダウン */}
+      {ready && <div className="countdown">残り：{countdown}秒</div>}
+
+      {/* 準備OKボタン */}
+      {!ready && !state.isFinished && (
+        <button className="ready-button" onClick={handleReady}>
+          準備OK
+        </button>
+      )}
 
       {/* ゴールエリア */}
       <div
@@ -217,8 +216,8 @@ function App() {
         </ul>
       </div>
 
-      <button className="reset-button" onClick={resetGame}>
-        新しいPK戦を始める
+      <button className="ready-button" onClick={() => window.location.reload()}>
+        ゲームをリセット
       </button>
     </div>
   );
