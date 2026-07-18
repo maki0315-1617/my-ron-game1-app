@@ -3,6 +3,20 @@ import "./App.css";
 
 const HISTORY_KEY = "ron-pk-history";
 
+// 6方向
+const directions = [
+  { key: "左上", x: -80, y: -80 },
+  { key: "左下", x: -80, y: 40 },
+  { key: "中央上", x: 0, y: -80 },
+  { key: "中央下", x: 0, y: 40 },
+  { key: "右上", x: 80, y: -80 },
+  { key: "右下", x: 80, y: 40 },
+];
+
+function getRandomDirection() {
+  return directions[Math.floor(Math.random() * directions.length)];
+}
+
 const initialState = {
   playerScore: 0,
   ronScore: 0,
@@ -14,18 +28,16 @@ const initialState = {
   log: [],
 };
 
-const directions = ["左", "中央", "右"];
-
-function getRandomDirection() {
-  return directions[Math.floor(Math.random() * directions.length)];
-}
-
 function App() {
   const [state, setState] = useState(initialState);
-  const [message, setMessage] = useState(
-    "緊迫したPK戦が始まる… 黒猫ロン君がこちらをじっと見つめている。"
-  );
+  const [message, setMessage] = useState("黒猫ロン君がゴール前で構えている…緊迫したPK戦が始まる。");
   const [history, setHistory] = useState([]);
+
+  // アニメーション用
+  const [ballPos, setBallPos] = useState({ x: 0, y: 0 });
+  const [ronPos, setRonPos] = useState({ x: 0, y: 0 });
+  const [goalFlash, setGoalFlash] = useState(false);
+  const [saveShake, setSaveShake] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(HISTORY_KEY);
@@ -44,17 +56,37 @@ function App() {
 
   const resetGame = () => {
     setState(initialState);
-    setMessage("新たなPK戦が始まる… ロン君の瞳が光る。");
+    setMessage("新たなPK戦が始まる… ロン君の瞳が鋭く光る。");
+    setBallPos({ x: 0, y: 0 });
+    setRonPos({ x: 0, y: 0 });
   };
 
-  const handlePlayerKick = (playerDir) => {
-    if (state.isFinished || !state.isPlayerTurn) return;
+  const animateKick = (dir, ronDir, isGoal) => {
+    // ボールを飛ばす
+    setBallPos({ x: dir.x, y: dir.y });
+
+    // ロン君を飛ばす
+    setRonPos({ x: ronDir.x, y: ronDir.y });
+
+    if (isGoal) {
+      setGoalFlash(true);
+      setTimeout(() => setGoalFlash(false), 400);
+    } else {
+      setSaveShake(true);
+      setTimeout(() => setSaveShake(false), 300);
+    }
+  };
+
+  const handlePlayerKick = (dir) => {
+    if (!state.isPlayerTurn || state.isFinished) return;
 
     const ronDir = getRandomDirection();
-    const isGoal = playerDir !== ronDir;
+    const isGoal = dir.key !== ronDir.key;
 
-    const logEntry = `あなたのシュート：${playerDir} / ロン君の予測：${ronDir} → ${
-      isGoal ? "ゴール！" : "セーブされた…"
+    animateKick(dir, ronDir, isGoal);
+
+    const logEntry = `あなた：${dir.key} / ロン君：${ronDir.key} → ${
+      isGoal ? "ゴール！" : "セーブ！"
     }`;
 
     setState((prev) => ({
@@ -66,20 +98,22 @@ function App() {
 
     setMessage(
       isGoal
-        ? "あなたのシュートがネットを揺らした！スタジアムがどよめく。"
-        : "ロン君が鋭い反応で止めた…重い空気が流れる。"
+        ? "あなたのシュートが決まった！スタジアムが揺れる。"
+        : "ロン君が鋭く飛んで止めた…黒猫の反射神経が光る。"
     );
 
-    setTimeout(handleRonKick, 800);
+    setTimeout(handleRonKick, 900);
   };
 
   const handleRonKick = () => {
     setState((prev) => {
       const ronDir = getRandomDirection();
       const playerGuess = getRandomDirection();
-      const isGoal = ronDir !== playerGuess;
+      const isGoal = ronDir.key !== playerGuess.key;
 
-      const logEntry = `ロン君のシュート：${ronDir} / あなたの予測：${playerGuess} → ${
+      animateKick(ronDir, playerGuess, isGoal);
+
+      const logEntry = `ロン君：${ronDir.key} / あなた：${playerGuess.key} → ${
         isGoal ? "ゴール…" : "止めた！"
       }`;
 
@@ -96,13 +130,13 @@ function App() {
         } else {
           if (newPlayerScore > newRonScore) {
             isFinished = true;
-            resultText = "あなたの勝利！ロン君は悔しそうに尻尾を揺らしている。";
+            resultText = "あなたの勝利！ロン君は悔しそうに尻尾を揺らす。";
           } else if (newPlayerScore < newRonScore) {
             isFinished = true;
-            resultText = "ロン君の勝利…黒猫の冷静さが光った。";
+            resultText = "ロン君の勝利…黒猫の冷静さが勝った。";
           } else {
             isSuddenDeath = true;
-            resultText = "同点！サドンデスに突入…緊張がさらに高まる。";
+            resultText = "同点！サドンデス突入…緊張が極限に達する。";
           }
         }
       } else {
@@ -111,19 +145,14 @@ function App() {
           resultText =
             newPlayerScore > newRonScore
               ? "サドンデスを制した！あなたの勝利！"
-              : "サドンデスでロン君が決めた…黒猫の勝利。";
+              : "ロン君が決めた…黒猫の勝利。";
         } else {
           newRound = prev.round + 1;
           resultText = "サドンデス継続…どちらも譲らない。";
         }
       }
 
-      if (resultText && isFinished) {
-        saveResultToHistory(
-          `あなた ${newPlayerScore} - ロン君 ${newRonScore} → ${resultText}`
-        );
-      }
-
+      if (isFinished) saveResultToHistory(resultText);
       setMessage(resultText);
 
       return {
@@ -140,91 +169,52 @@ function App() {
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>黒猫ロン君とのPK戦ゲーム</h1>
-        <p className="sub">あなた vs 黒猫ロン君（CPU）</p>
-      </header>
+      <h1>黒猫ロン君とのPK戦（アニメーション版）</h1>
 
-      <section className="history-section">
-        <h2>過去5回の勝敗結果</h2>
-        {history.length === 0 ? (
-          <p className="history-empty">まだ結果がありません。</p>
-        ) : (
-          <ul className="history-list">
-            {history.map((h, idx) => (
-              <li key={idx}>
-                <span className="history-time">{h.time}</span>
-                <span className="history-result">{h.result}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {/* ゴールエリア */}
+      <div className={`goal-area ${goalFlash ? "goal-flash" : ""} ${saveShake ? "save-shake" : ""}`}>
+        <div className="goal-frame"></div>
 
-      <section className="game-section">
-        <div className="score-board">
-          <div className="score-item">
-            <span className="label">あなた</span>
-            <span className="score">{state.playerScore}</span>
-          </div>
-          <div className="score-item">
-            <span className="label">ロン君 🐾</span>
-            <span className="score">{state.ronScore}</span>
-          </div>
-        </div>
+        {/* ボール */}
+        <div
+          className="ball"
+          style={{ transform: `translate(${ballPos.x}px, ${ballPos.y}px)` }}
+        ></div>
 
-        <div className="round-info">
-          <p>
-            ラウンド: <strong>{state.round}</strong>
-            {state.isSuddenDeath && <span className="sudden">（サドンデス）</span>}
-          </p>
-          <p>
-            状態:{" "}
-            {state.isFinished
-              ? "試合終了"
-              : state.isPlayerTurn
-              ? "あなたの番"
-              : "ロン君の番"}
-          </p>
-        </div>
+        {/* ロン君 */}
+        <div
+          className="ron"
+          style={{ transform: `translate(${ronPos.x}px, ${ronPos.y}px)` }}
+        ></div>
+      </div>
 
-        <div className="message">{message}</div>
+      <p>{message}</p>
 
-        <div className="controls">
-          <p>シュート方向を選択：</p>
-          <div className="buttons">
-            {directions.map((dir) => (
-              <button
-                key={dir}
-                className="kick-button"
-                onClick={() => handlePlayerKick(dir)}
-                disabled={!state.isPlayerTurn || state.isFinished}
-              >
-                {dir} に蹴る
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="log">
-          <h3>試合ログ</h3>
-          {state.log.length === 0 ? (
-            <p>まだプレーはありません。</p>
-          ) : (
-            <ul>
-              {state.log.map((entry, idx) => (
-                <li key={idx}>{entry}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="actions">
-          <button className="reset-button" onClick={resetGame}>
-            新しいPK戦を始める
+      {/* シュートボタン */}
+      <div className="buttons">
+        {directions.map((d) => (
+          <button
+            key={d.key}
+            className="kick-button"
+            disabled={!state.isPlayerTurn || state.isFinished}
+            onClick={() => handlePlayerKick(d)}
+          >
+            {d.key} に蹴る
           </button>
-        </div>
-      </section>
+        ))}
+      </div>
+
+      {/* ログ */}
+      <h3>試合ログ</h3>
+      <ul>
+        {state.log.map((l, i) => (
+          <li key={i}>{l}</li>
+        ))}
+      </ul>
+
+      <button className="reset-button" onClick={resetGame}>
+        新しいPK戦を始める
+      </button>
     </div>
   );
 }
