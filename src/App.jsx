@@ -149,7 +149,7 @@ export default function Page() {
     const rNum = currentRound + 1;
     setLogs(prev => [`【${rNum}回戦・ロン君の攻撃】 ロン君の狙い:${ronTargetCourse} ➔ あなたの守備:${course} 【${isSaved ? 'セーブ成功' : '失点'}】`, ...prev]);
     
-    setMessage(`${resultText} ➔ ロン君の攻撃終了。下のボタンを押して次の進捗に進めてください。`);
+    setMessage(`${resultText} ➔ ロン君の攻撃終了。下の「次のフェーズへ進む」ボタンを押して進めてください。`);
     setGameState('defend_result');
   };
 
@@ -158,7 +158,7 @@ export default function Page() {
     const nextRound = currentRound + 1;
     setCurrentRound(nextRound);
 
-    // 勝敗チェック
+    // 勝敗チェック（3点先取または5回戦終了）
     if (playerScore >= 3 && ronScore < 3) {
       setGameState('game_over');
       setMessage(`🏆 試合終了！あなたの勝ちです！ 🎉（結果：${playerScore} 対 ${ronScore}）`);
@@ -321,7 +321,7 @@ export default function Page() {
               <>
                 <div onClick={() => handlePitchClickAttack('左')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
                 <div onClick={() => handlePitchClickAttack('中央')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
-                <div onClick={() => handlePitchClickAttack('right')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} onClick={() => handlePitchClickAttack('右')} />
+                <div onClick={() => handlePitchClickAttack('右')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
               </>
             )}
 
