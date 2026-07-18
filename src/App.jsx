@@ -37,7 +37,7 @@ export default function RonPkGame() {
       setCurrentActionMessage('🐈 ロン君が3点先取！ロン君の勝ちです！');
       return true;
     } else if (nextPlayerScore >= 3 && nextRonScore >= 3) {
-      // 同時に3点に達した場合（5回戦などで同点の場合含む）
+      // 同同時に3点に達した場合（5回戦などで同点の場合含む）
       if (nextPlayerScore > nextRonScore) {
         setWinner('あなた');
       } else if (nextRonScore > nextPlayerScore) {
@@ -237,12 +237,14 @@ export default function RonPkGame() {
           style={{
             width: `${goalWidth}px`,
             height: `${goalHeight * 1.6}px`, // ゴール(180px) + グラウンド(108px) = 288px
-            background: '#2e7d32', // サッカー場の緑
+            // 攻撃時は明るいピッチ（ゴールを外から見る）、守備時は暗めのピッチ（ゴール内側から見るイメージ）
+            background: gameState === 'attack' ? '#2e7d32' : '#1b5e20', 
             position: 'relative',
             cursor: gameState === 'attack' ? 'crosshair' : 'not-allowed',
             borderRadius: '6px',
             boxShadow: 'inset 0 0 30px rgba(0,0,0,0.3)',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            transition: 'background 0.3s ease'
           }}
         >
           {/* 1. サッカーゴールエリア（上部） */}
@@ -255,11 +257,12 @@ export default function RonPkGame() {
             border: '5px solid #ffffff', // 白いゴールポスト
             borderBottom: 'none',
             boxSizing: 'border-box',
-            background: 'rgba(255, 255, 255, 0.15)', // ネット感を出す薄白
-            // ネットの網目をCSSグラデーションで表現
+            // 攻撃時は白っぽく透過させてネットを強調、守備時はゴール内部にいるイメージなので透明度を下げる
+            background: gameState === 'attack' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)', 
             backgroundImage: 'linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)',
             backgroundSize: '12px 12px',
-            borderRadius: '4px 4px 0 0'
+            borderRadius: '4px 4px 0 0',
+            transition: 'background 0.3s ease'
           }}>
             <div style={{ position: 'absolute', bottom: '-2px', left: '-5px', right: '-5px', height: '2px', backgroundColor: '#fff' }}></div>
           </div>
@@ -270,7 +273,7 @@ export default function RonPkGame() {
             top: `${goalHeight + 10}px`,
             width: '100%',
             height: '2px',
-            backgroundColor: 'rgba(255,255,255,0.4)' // ペナルティエリア的原ライン風
+            backgroundColor: 'rgba(255,255,255,0.4)' // ペナルティエリアのライン風
           }}></div>
 
           {/* キーパー (攻撃時は黒猫ロン君 🐈‍⬛ / 守備時は人間選手 🧍) */}
@@ -303,10 +306,15 @@ export default function RonPkGame() {
             ⚽
           </div>
 
-          {/* グラウンド側のキッカー位置案内（攻撃時のみ） */}
+          {/* キッカー位置案内（攻撃時と守備時でキッカーの向きや有無を調整） */}
           {gameState === 'attack' && (
             <div style={{ position: 'absolute', bottom: '5px', left: '50%', transform: 'translateX(-50%)', fontSize: '24px', opacity: 0.8 }}>
               🏃‍♂️
+            </div>
+          )}
+          {gameState === 'defend_ready' && (
+            <div style={{ position: 'absolute', bottom: '5px', left: '50%', transform: 'translateX(-50%) scaleX(-1)', fontSize: '24px', opacity: 0.8 }}>
+              🐈‍⬛
             </div>
           )}
         </div>
