@@ -156,18 +156,18 @@ export default function Page() {
     setGameState('defend_result');
   };
 
-  // ボタンクリックで初期画面に戻し、その後次のステップを安全に適用する
+  // ボタンクリック時：初期画面（setup）の状態へ完全に遷移し、テキストのみを更新する
   const advanceAfterDefend = () => {
     clearActiveTimer();
     
-    // 1. ピッチ上の配置とゲーム状態を完全に「setup（初期画面）」へ戻す
+    // 1. 画面の配置とゲーム状態を完全に初期状態（setup）へ戻す
     setBallLeft('50%');
     setBallTop('85%');
     setKeeperLeft('50%');
     setKeeperTop('30%');
     setGameState('setup');
 
-    // 2. 勝敗および回戦の判定を行い、メッセージを更新する
+    // 2. 勝敗判定
     if (playerScore >= 3 && ronScore < 3) {
       setGameState('game_over');
       setMessage(`🏆 試合終了！あなたの勝ちです！ 🎉（結果：${playerScore} 対 ${ronScore}）`);
@@ -187,7 +187,7 @@ export default function Page() {
       return;
     }
 
-    // 次の回戦へカウントを進め、初期画面用のテキストをセット
+    // 3. 次の回戦の処理と、案内テキストの更新のみを行う
     setCurrentRound(nextRound);
     setMessage(`第 ${currentRound + 1}回戦が終了しました！下の「キックオフ！」ボタンを押すと、第 ${nextRound + 1}回戦が始まります。`);
   };
@@ -384,7 +384,7 @@ export default function Page() {
       {/* 中断リセットボタン */}
       {gameState !== 'setup' && gameState !== 'game_over' && (
         <button onClick={resetGame} style={{ padding: '6px 12px', background: '#f7fafc', border: '1px solid #cbd5e0', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', color: '#718096' }}>
-          試合をリセットしてやり直す
+          試合をリセットしてやり長す
         </button>
       )}
 
