@@ -1,21 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 
 const HISTORY_KEY = "ron-pk-history";
-
-// 6方向
-const directions = [
-  { key: "左上", x: -120, y: -120 },
-  { key: "左下", x: -120, y: 40 },
-  { key: "中央上", x: 0, y: -120 },
-  { key: "中央下", x: 0, y: 40 },
-  { key: "右上", x: 120, y: -120 },
-  { key: "右下", x: 120, y: 40 },
-];
-
-function getRandomDirection() {
-  return directions[Math.floor(Math.random() * directions.length)];
-}
 
 const initialState = {
   playerScore: 0,
@@ -33,25 +19,47 @@ function App() {
   const [message, setMessage] = useState("黒猫ロン君がゴール前で構えている…緊迫したPK戦が始まる。");
   const [history, setHistory] = useState([]);
 
-  // アニメーション用
   const [ballPos, setBallPos] = useState({ x: 0, y: 0 });
   const [ronPos, setRonPos] = useState({ x: 0, y: 0 });
+  const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+
   const [goalFlash, setGoalFlash] = useState(false);
   const [saveShake, setSaveShake] = useState(false);
+
+  const [countdown, setCountdown] = useState(5);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     const stored = localStorage.getItem(HISTORY_KEY);
     if (stored) setHistory(JSON.parse(stored));
   }, []);
 
-  const saveResultToHistory = (resultText) => {
-    const newEntry = {
-      time: new Date().toLocaleString(),
-      result: resultText,
-    };
-    const updated = [newEntry, ...history].slice(0, 5);
-    setHistory(updated);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+  const startCountdown = () => {
+    setCountdown(5);
+    timerRef.current = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(timerRef.current);
+          handleTimeout();
+        }
+        return c - 1;
+      });
+    }, 1000);
+  };
+
+  const handleTimeout = () => {
+    if (!state.isPlayerTurn || state.isFinished) return;
+
+    const logEntry = "タイムオーバー → あなたの失敗";
+    setState((prev) => ({
+      ...prev,
+      isPlayerTurn: false,
+      log: [...prev.log, logEntry],
+    }));
+
+    setMessage("タイムオーバー！蹴る前に時間が切れた…");
+
+    setTimeout(handleRonKick, 900);
   };
 
   const resetGame = () => {
@@ -59,14 +67,18 @@ function App() {
     setMessage("新たなPK戦が始まる… ロン君の瞳が鋭く光る。");
     setBallPos({ x: 0, y: 0 });
     setRonPos({ x: 0, y: 0 });
+    setPlayerPos({ x: 0, y: 0 });
+    clearInterval(timerRef.current);
+    startCountdown();
   };
 
-  const animateKick = (dir, ronDir, isGoal) => {
-    // ボールを飛ばす
-    setBallPos({ x: dir.x, y: dir.y });
+  useEffect(() => {
+    startCountdown();
+  }, []);
 
-    // ロン君を飛ばす
-    setRonPos({ x: ronDir.x, y: ronDir.y });
+  const animateKick = (ballX, ballY, ronX, ronY, isGoal) => {
+    setBallPos({ x: ballX, y: ballY });
+    setRonPos({ x: ronX, y: ronY });
 
     if (isGoal) {
       setGoalFlash(true);
@@ -77,15 +89,23 @@ function App() {
     }
   };
 
-  const handlePlayerKick = (dir) => {
+  const handlePlayerKick = (e) => {
     if (!state.isPlayerTurn || state.isFinished) return;
 
-    const ronDir = getRandomDirection();
-    const isGoal = dir.key !== ronDir.key;
+    clearInterval(timerRef.current);
 
-    animateKick(dir, ronDir, isGoal);
+    const rect = e.target.getBoundingClientRect();
+    const clickX = e.clientX - rect.left - 150;
+    const clickY = e.clientY - rect.top - 80;
 
-    const logEntry = `攻撃：あなた → ${dir.key} / 守備：ロン君 → ${ronDir.key} → ${
+    const ronGuessX = Math.random() * 200 - 100;
+    const ronGuessY = Math.random() * 120 - 60;
+
+    const isGoal = Math.abs(clickX - ronGuessX) > 40 || Math.abs(clickY - ronGuessY) > 40;
+
+    animateKick(clickX, clickY, ronGuessX, ronGuessY, isGoal);
+
+    const logEntry = `攻撃：あなた → (${clickX}, ${clickY}) / 守備：ロン君 → (${ronGuessX}, ${ronGuessY}) → ${
       isGoal ? "ゴール！" : "セーブ！"
     }`;
 
@@ -96,24 +116,24 @@ function App() {
       log: [...prev.log, logEntry],
     }));
 
-    setMessage(
-      isGoal
-        ? "あなたのシュートが決まった！スタジアムが揺れる。"
-        : "ロン君が鋭く飛んで止めた…黒猫の反射神経が光る。"
-    );
+    setMessage(isGoal ? "あなたのシュートが決まった！" : "ロン君が止めた…黒猫の反射神経が光る。");
 
     setTimeout(handleRonKick, 900);
   };
 
   const handleRonKick = () => {
     setState((prev) => {
-      const ronDir = getRandomDirection();
-      const playerGuess = getRandomDirection();
-      const isGoal = ronDir.key !== playerGuess.key;
+      const ronX = Math.random() * 200 - 100;
+      const ronY = Math.random() * 120 - 60;
 
-      animateKick(ronDir, playerGuess, isGoal);
+      const playerGuessX = Math.random() * 200 - 100;
+      const playerGuessY = Math.random() * 120 - 60;
 
-      const logEntry = `攻撃：ロン君 → ${ronDir.key} / 守備：あなた → ${playerGuess.key} → ${
+      const isGoal = Math.abs(ronX - playerGuessX) > 40 || Math.abs(ronY - playerGuessY) > 40;
+
+      animateKick(ronX, ronY, playerGuessX, playerGuessY, isGoal);
+
+      const logEntry = `攻撃：ロン君 → (${ronX}, ${ronY}) / 守備：あなた → (${playerGuessX}, ${playerGuessY}) → ${
         isGoal ? "ゴール…" : "止めた！"
       }`;
 
@@ -130,29 +150,26 @@ function App() {
         } else {
           if (newPlayerScore > newRonScore) {
             isFinished = true;
-            resultText = "あなたの勝利！ロン君は悔しそうに尻尾を揺らす。";
+            resultText = "あなたの勝利！";
           } else if (newPlayerScore < newRonScore) {
             isFinished = true;
             resultText = "ロン君の勝利…黒猫の冷静さが勝った。";
           } else {
             isSuddenDeath = true;
-            resultText = "同点！サドンデス突入…緊張が極限に達する。";
+            resultText = "同点！サドンデス突入…";
           }
         }
       } else {
         if (newPlayerScore !== newRonScore) {
           isFinished = true;
           resultText =
-            newPlayerScore > newRonScore
-              ? "サドンデスを制した！あなたの勝利！"
-              : "ロン君が決めた…黒猫の勝利。";
+            newPlayerScore > newRonScore ? "サドンデスを制した！あなたの勝利！" : "ロン君が決めた…黒猫の勝利。";
         } else {
           newRound = prev.round + 1;
-          resultText = "サドンデス継続…どちらも譲らない。";
+          resultText = "サドンデス継続…";
         }
       }
 
-      if (isFinished) saveResultToHistory(resultText);
       setMessage(resultText);
 
       return {
@@ -165,49 +182,32 @@ function App() {
         log: [...prev.log, logEntry],
       };
     });
+
+    startCountdown();
   };
 
   return (
     <div className="app">
-      <h1>黒猫ロン君とのPK戦（アニメーション強化版）</h1>
+      <h1>黒猫ロン君とのPK戦（クリックで蹴る版）</h1>
+
+      <div className="countdown">残り時間：{countdown}秒</div>
 
       {/* ゴールエリア */}
-      <div className={`goal-area ${goalFlash ? "goal-flash" : ""} ${saveShake ? "save-shake" : ""}`}>
+      <div
+        className={`goal-area ${goalFlash ? "goal-flash" : ""} ${saveShake ? "save-shake" : ""}`}
+        onClick={handlePlayerKick}
+      >
         <div className="goal-frame"></div>
 
-        {/* プレイヤー */}
-        <div className="player"></div>
+        <div className="player" style={{ transform: `translate(${playerPos.x}px, ${playerPos.y}px)` }}></div>
 
-        {/* ボール */}
-        <div
-          className="ball"
-          style={{ transform: `translate(${ballPos.x}px, ${ballPos.y}px)` }}
-        ></div>
+        <div className="ball" style={{ transform: `translate(${ballPos.x}px, ${ballPos.y}px)` }}></div>
 
-        {/* ロン君 */}
-        <div
-          className="ron"
-          style={{ transform: `translate(${ronPos.x}px, ${ronPos.y}px)` }}
-        ></div>
+        <div className="ron" style={{ transform: `translate(${ronPos.x}px, ${ronPos.y}px)` }}></div>
       </div>
 
       <p>{message}</p>
 
-      {/* シュートボタン */}
-      <div className="buttons">
-        {directions.map((d) => (
-          <button
-            key={d.key}
-            className="kick-button"
-            disabled={!state.isPlayerTurn || state.isFinished}
-            onClick={() => handlePlayerKick(d)}
-          >
-            {d.key} に蹴る
-          </button>
-        ))}
-      </div>
-
-      {/* ログ */}
       <div className="log">
         <h3>試合ログ</h3>
         <ul>
