@@ -1,226 +1,201 @@
-import React, { useState, useEffect, useRef } from "react";
-import "./App.css";
+import React, { useState } from 'react';
 
-const initialState = {
-  playerScore: 0,
-  ronScore: 0,
-  round: 1,
-  maxRounds: 5,
-  isPlayerTurn: true,
-  isFinished: false,
-  isSuddenDeath: false,
-  log: [],
-};
+export default function RonPkGame() {
+  // ゲームの基本状態
+  // 'attack' (プレイヤーの攻撃), 'defend_ready' (ロン君の攻撃を待つ状態), 'defend_result' (守備結果表示)
+  const [gameState, setGameState] = useState('attack'); 
+  const [logs, setLogs] = useState([]);
+  const [playerScore, setPlayerScore] = useState(0);
+  const [ronScore, setRonScore] = useState(0);
 
-function App() {
-  const [state, setState] = useState(initialState);
-  const [message, setMessage] = useState("黒猫ロン君がゴール前で構えている…PK戦が始まる。");
+  // 一時的な状態表示用
+  const [currentActionMessage, setCurrentActionMessage] = useState('ゴール内の狙いたい場所をクリックしてシュートを打とう！');
 
-  const [ballPos, setBallPos] = useState({ x: 0, y: 0 });
-  const [ronPos, setRonPos] = useState({ x: 0, y: 0 });
-  const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+  // ゴールのサイズ定義（判定用）
+  const goalWidth = 400;
+  const goalHeight = 200;
 
-  const [goalFlash, setGoalFlash] = useState(false);
-  const [saveShake, setSaveShake] = useState(false);
+  // 1. あなたの攻撃（ゴールをクリックしたとき）
+  const handleAttack = (e) => {
+    if (gameState !== 'attack') return;
 
-  const [countdown, setCountdown] = useState(null);
-  const timerRef = useRef(null);
+    // クリックした座標を取得（ゴールの中心を原点 (0,0) とする計算）
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left - goalWidth / 2;
+    const y = (e.clientY - rect.top - goalHeight / 2) * -1; // 上方向をプラスに
 
-  const [ready, setReady] = useState(false);
+    // ロン君（守備）の動く位置をランダムで決定
+    const ronX = (Math.random() - 0.5) * goalWidth;
+    const ronY = (Math.random() - 0.5) * goalHeight;
 
-  const startCountdown = () => {
-    setCountdown(5);
-    timerRef.current = setInterval(() => {
-      setCountdown((c) => {
-        if (c <= 1) {
-          clearInterval(timerRef.current);
-          handleTimeout();
-        }
-        return c - 1;
-      });
-    }, 1000);
-  };
+    // 距離が近い場合はセーブされたと判定（閾値: 60px）
+    const distance = Math.sqrt(Math.pow(x - ronX, 2) + Math.pow(y - ronY, 2));
+    const isGoal = distance > 60;
 
-  const handleTimeout = () => {
-    if (!state.isPlayerTurn || state.isFinished) return;
-
-    const logEntry = "タイムオーバー → あなたの失敗";
-    setState((prev) => ({
-      ...prev,
-      isPlayerTurn: false,
-      log: [...prev.log, logEntry],
-    }));
-
-    setMessage("タイムオーバー！蹴る前に時間が切れた…");
-
-    setTimeout(handleRonKick, 900);
-  };
-
-  const animateKick = (ballX, ballY, ronX, ronY, isGoal) => {
-    setBallPos({ x: ballX, y: ballY });
-    setRonPos({ x: ronX, y: ronY });
-
+    let resultMessage = '';
     if (isGoal) {
-      setGoalFlash(true);
-      setTimeout(() => setGoalFlash(false), 400);
+      setPlayerScore(prev => prev + 1);
+      resultMessage = '〇ゴール！';
     } else {
-      setSaveShake(true);
-      setTimeout(() => setSaveShake(false), 300);
+      resultMessage = '× ロン君に止められた…';
     }
+
+    const newLog = `【あなたの攻撃】 シュート: (${x.toFixed(1)}, ${y.toFixed(1)}) / ロン君の守備: (${ronX.toFixed(1)}, ${ronY.toFixed(1)}) → ${resultMessage}`;
+    setLogs(prev => [newLog, ...prev]);
+    setCurrentActionMessage(`${resultMessage} 次はロン君の攻撃です。守備の準備をしてください。`);
+    
+    // 次のターン（守備準備）へ
+    setGameState('defend_ready');
   };
 
-  const handlePlayerKick = (e) => {
-    if (!state.isPlayerTurn || state.isFinished || !ready) return;
+  // 2. あなたの守備（「ロン君のシュートを止める！」ボタンを押したとき）
+  const handleDefend = () => {
+    if (gameState !== 'defend_ready') return;
 
-    clearInterval(timerRef.current);
+    // あなた（守備）のランダムな位置
+    const playerX = (Math.random() - 0.5) * goalWidth;
+    const playerY = (Math.random() - 0.5) * goalHeight;
 
-    const rect = e.target.getBoundingClientRect();
-    const clickX = e.clientX - rect.left - 150;
-    const clickY = e.clientY - rect.top - 80;
+    // ロン君（攻撃）のランダムなシュート位置
+    const ronX = (Math.random() - 0.5) * goalWidth;
+    const ronY = (Math.random() - 0.5) * goalHeight;
 
-    const ronGuessX = Math.random() * 200 - 100;
-    const ronGuessY = Math.random() * 120 - 60;
+    // 距離が近い場合はセーブ（閾値: 60px）
+    const distance = Math.sqrt(Math.pow(ronX - playerX, 2) + Math.pow(ronY - playerY, 2));
+    const isSaved = distance <= 60;
 
-    const isGoal = Math.abs(clickX - ronGuessX) > 40 || Math.abs(clickY - ronGuessY) > 40;
+    let resultMessage = '';
+    if (isSaved) {
+      resultMessage = '〇止めた！';
+    } else {
+      setRonScore(prev => prev + 1);
+      resultMessage = '× ゴール…ロン君に決められた！';
+    }
 
-    animateKick(clickX, clickY, ronGuessX, ronGuessY, isGoal);
+    const newLog = `【ロン君の攻撃】 ロン君のシュート: (${ronX.toFixed(1)}, ${ronY.toFixed(1)}) / あなたの守備: (${playerX.toFixed(1)}, ${playerY.toFixed(1)}) → ${resultMessage}`;
+    setLogs(prev => [newLog, ...prev]);
+    setCurrentActionMessage(`${resultMessage} 次はあなたの攻撃ターンです！`);
 
-    const logEntry = `攻撃：あなた → (${clickX}, ${clickY}) / 守備：ロン君 → (${ronGuessX}, ${ronGuessY}) → ${
-      isGoal ? "〇 ゴール！" : "× セーブ！"
-    }`;
-
-    setState((prev) => ({
-      ...prev,
-      playerScore: isGoal ? prev.playerScore + 1 : prev.playerScore,
-      isPlayerTurn: false,
-      log: [...prev.log, logEntry],
-    }));
-
-    setMessage(isGoal ? "あなたのシュートが決まった！" : "ロン君が止めた…黒猫の反射神経が光る。");
-
-    setTimeout(handleRonKick, 900);
+    // 次のターン（攻撃）へ
+    setGameState('attack');
   };
 
-  const handleRonKick = () => {
-    setState((prev) => {
-      const ronX = Math.random() * 200 - 100;
-      const ronY = Math.random() * 120 - 60;
-
-      const playerGuessX = Math.random() * 200 - 100;
-      const playerGuessY = Math.random() * 120 - 60;
-
-      const isGoal = Math.abs(ronX - playerGuessX) > 40 || Math.abs(ronY - playerGuessY) > 40;
-
-      animateKick(ronX, ronY, playerGuessX, playerGuessY, isGoal);
-
-      const logEntry = `攻撃：ロン君 → (${ronX}, ${ronY}) / 守備：あなた → (${playerGuessX}, ${playerGuessY}) → ${
-        isGoal ? "× ゴール…" : "〇 止めた！"
-      }`;
-
-      let newPlayerScore = prev.playerScore;
-      let newRonScore = isGoal ? prev.ronScore + 1 : prev.ronScore;
-      let newRound = prev.round;
-      let isSuddenDeath = prev.isSuddenDeath;
-      let isFinished = false;
-      let resultText = "";
-
-      if (!prev.isSuddenDeath) {
-        if (prev.round < prev.maxRounds) {
-          newRound = prev.round + 1;
-        } else {
-          if (newPlayerScore > newRonScore) {
-            isFinished = true;
-            resultText = "あなたの勝利！";
-          } else if (newPlayerScore < newRonScore) {
-            isFinished = true;
-            resultText = "ロン君の勝利…黒猫の冷静さが勝った。";
-          } else {
-            isSuddenDeath = true;
-            resultText = "同点！サドンデス突入…";
-          }
-        }
-      } else {
-        if (newPlayerScore !== newRonScore) {
-          isFinished = true;
-          resultText =
-            newPlayerScore > newRonScore ? "サドンデスを制した！あなたの勝利！" : "ロン君が決めた…黒猫の勝利。";
-        } else {
-          newRound = prev.round + 1;
-          resultText = "サドンデス継続…";
-        }
-      }
-
-      setMessage(resultText);
-
-      return {
-        ...prev,
-        ronScore: newRonScore,
-        round: newRound,
-        isPlayerTurn: true,
-        isSuddenDeath,
-        isFinished,
-        log: [...prev.log, logEntry],
-      };
-    });
-
-    setReady(false);
-    setCountdown(null);
-  };
-
-  const handleReady = () => {
-    setReady(true);
-    startCountdown();
+  // ゲームリセット
+  const resetGame = () => {
+    setPlayerScore(0);
+    setRonScore(0);
+    setLogs([]);
+    setGameState('attack');
+    setCurrentActionMessage('ゴール内の狙いたい場所をクリックしてシュートを打とう！');
   };
 
   return (
-    <div className="app">
-      <h1>黒猫ロン君とのPK戦（クリックで蹴る版）</h1>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+      <h2>黒猫ロン君とのPK戦（交互に交代版）</h2>
 
-      {/* 状況表示 */}
-      <div className="status-bar">
-        {state.isPlayerTurn ? "あなたの攻撃：〇" : "ロン君の攻撃：×"}
+      {/* スコアボード */}
+      <div style={{ display: 'flex', justifyContent: 'space-around', background: '#f0f0f0', padding: '10px', borderRadius: '8px', marginBottom: '20px' }}>
+        <div>
+          <div style={{ fontSize: '14px', fontWeight: 'bold' }}>あなた（攻撃）</div>
+          <div style={{ fontSize: '24px' }}>{playerScore}</div>
+        </div>
+        <div style={{ fontSize: '24px', alignSelf: 'center' }}>VS</div>
+        <div>
+          <div style={{ fontSize: '14px', fontWeight: 'bold' }}>ロン君（守備）</div>
+          <div style={{ fontSize: '24px' }}>{ronScore}</div>
+        </div>
       </div>
 
-      {/* カウントダウン */}
-      {ready && <div className="countdown">残り：{countdown}秒</div>}
+      {/* 現在のターン案内板 */}
+      <div style={{
+        padding: '15px', 
+        borderRadius: '8px', 
+        marginBottom: '20px', 
+        fontWeight: 'bold',
+        background: gameState === 'attack' ? '#e3f2fd' : '#fff3e0',
+        color: gameState === 'attack' ? '#0d47a1' : '#e65100',
+        border: `20px`
+      }}>
+        {gameState === 'attack' ? '⚔️ あなたの攻撃ターン' : '🛡️ ロン君の攻撃（あなたの守備ターン）'}
+        <p style={{ fontSize: '14px', margin: '5px 0 0 0', color: '#333', fontWeight: 'normal' }}>
+          {currentActionMessage}
+        </p>
+      </div>
 
-      {/* 準備OKボタン */}
-      {!ready && !state.isFinished && (
-        <button className="ready-button" onClick={handleReady}>
-          準備OK
-        </button>
-      )}
+      {/* メインアクションエリア */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+        {gameState === 'attack' ? (
+          /* 攻撃時：クリックできるゴール */
+          <div 
+            onClick={handleAttack}
+            style={{
+              width: `${goalWidth}px`,
+              height: `${goalHeight}px`,
+              border: '5px solid white',
+              background: '#2e7d32',
+              position: 'relative',
+              cursor: 'crosshair',
+              borderRadius: '4px',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+            }}
+          >
+            <div style={{ position: 'absolute', top: '40%', left: '45%', fontSize: '32px' }}>🐈 (ロン君)</div>
+            <div style={{ position: 'absolute', bottom: '10px', left: '48%', color: 'white', fontSize: '12px' }}>ここを狙え！</div>
+          </div>
+        ) : (
+          /* 守備時：ボタンを押してロン君にシュートさせる */
+          <div 
+            style={{
+              width: `${goalWidth}px`,
+              height: `${goalHeight}px`,
+              background: '#37474f',
+              borderRadius: '4px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              color: 'white'
+            }}
+          >
+            <div style={{ fontSize: '48px', marginBottom: '10px' }}>🐈💨 ⚽</div>
+            <button 
+              onClick={handleDefend}
+              style={{
+                padding: '12px 24px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                backgroundColor: '#ff9800',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.2)'
+              }}
+            >
+              ロン君のシュートを止める！
+            </button>
+          </div>
+        )}
+      </div>
 
-      {/* ゴールエリア */}
-      <div
-        className={`goal-area ${goalFlash ? "goal-flash" : ""} ${saveShake ? "save-shake" : ""}`}
-        onClick={handlePlayerKick}
+      {/* コントロール */}
+      <button 
+        onClick={resetGame}
+        style={{ padding: '8px 16px', background: '#e0e0e0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
       >
-        <div className="goal-frame"></div>
-
-        <div className="player" style={{ transform: `translate(${playerPos.x}px, ${playerPos.y}px)` }}></div>
-
-        <div className="ball" style={{ transform: `translate(${ballPos.x}px, ${ballPos.y}px)` }}></div>
-
-        <div className="ron" style={{ transform: `translate(${ronPos.x}px, ${ronPos.y}px)` }}></div>
-      </div>
-
-      <p>{message}</p>
-
-      <div className="log">
-        <h3>試合ログ</h3>
-        <ul>
-          {state.log.map((l, i) => (
-            <li key={i}>{l}</li>
-          ))}
-        </ul>
-      </div>
-
-      <button className="ready-button" onClick={() => window.location.reload()}>
         ゲームをリセット
       </button>
+
+      {/* 試合ログ */}
+      <h3 style={{ textAlign: 'left', marginTop: '30px', borderBottom: '2px solid #ccc', paddingBottom: '5px' }}>試合ログ</h3>
+      <div style={{ textAlign: 'left', maxHeight: '200px', overflowY: 'auto', background: '#fafafa', padding: '10px', borderRadius: '4px' }}>
+        {logs.length === 0 && <p style={{ color: '#999' }}>ここに試合の経過が表示されます</p>}
+        {logs.map((log, index) => (
+          <div key={index} style={{ padding: '4px 0', borderBottom: '1px solid #eee', fontSize: '14px' }}>
+            {log}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
-
-export default App;
