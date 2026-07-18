@@ -17,6 +17,10 @@ export default function RonPkGame() {
   const [ballPos, setBallPos] = useState({ x: 50, y: 90, opacity: 1 }); // ボールの位置
   const [keeperPos, setKeeperPos] = useState({ x: 50, y: 50 });       // キーパー（守備側）の位置
 
+  // キーパーの画像
+  const ronImage = "url('/api/placeholder/120/120?text=🐈')";
+  const humanPlayerImage = "url('/api/placeholder/120/120?text=👤')";
+
   // 1. あなたの攻撃（ゴールをクリックしたとき）
   const handleAttack = (e) => {
     if (gameState !== 'attack') return;
@@ -145,13 +149,13 @@ export default function RonPkGame() {
         </div>
       </div>
 
-      {/* メインのゲーム画面（常にゴールを表示） */}
+      {/* メインのゲーム画面（常にゴールとグラウンドを表示） */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px' }}>
         <div 
           onClick={handleAttack}
           style={{
             width: `${goalWidth}px`,
-            height: `${goalHeight}px`,
+            height: `${goalHeight * 1.5}px`, // グラウンドエリアを追加
             border: '4px solid white',
             borderBottom: 'none',
             background: '#388e3c',
@@ -162,21 +166,23 @@ export default function RonPkGame() {
             overflow: 'hidden'
           }}
         >
-          {/* ゴールネットの背景うっすら表現 */}
-          <div style={{ position: 'absolute', width: '100%', height: '100%', background: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+          {/* ゴールエリアの白線 */}
+          <div style={{ position: 'absolute', top: '0', left: '0', width: `${goalWidth}px`, height: `${goalHeight}px`, border: '4px solid white', boxSizing: 'border-box' }}></div>
 
-          {/* キーパー（ロン君 または あなた） */}
+          {/* キーパー（ロン君 または 人間の選手） */}
           <div style={{
             position: 'absolute',
             left: `${keeperPos.x}%`,
             top: `${keeperPos.y}%`,
             transform: 'translate(-50%, -50%)',
             transition: 'all 0.4s ease-out', // 0.4秒かけてスムーズに動く
-            fontSize: '32px',
+            width: '60px',
+            height: '60px',
+            backgroundImage: gameState === 'attack' ? ronImage : humanPlayerImage,
+            backgroundSize: 'cover',
             zIndex: 2,
             userSelect: 'none'
           }}>
-            {gameState === 'attack' ? '🐈' : '🧤'}
           </div>
 
           {/* サッカーボール */}
@@ -193,6 +199,21 @@ export default function RonPkGame() {
           }}>
             ⚽
           </div>
+
+          {/* キッカー（攻撃ターンのときだけ表示） */}
+          {gameState === 'attack' && (
+            <div style={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              fontSize: '32px',
+              zIndex: 1,
+              userSelect: 'none'
+            }}>
+              👤
+            </div>
+          )}
 
           {/* 攻撃時のクリック誘導テキスト */}
           {gameState === 'attack' && (
