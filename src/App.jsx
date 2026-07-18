@@ -7,7 +7,7 @@ export default function Page() {
   const timerRef = useRef(null);
 
   // ゲーム状態管理
-  // 'setup', 'attack', 'attack_result', 'countdown', 'defend_click', 'defend_result', 'game_over'
+  // 'setup', 'attack', 'attack_result', 'countdown', 'defend_click', 'defend_result', 'confirm_next', 'game_over'
   const [gameState, setGameState] = useState('setup'); 
   
   const [playerScore, setPlayerScore] = useState(0);
@@ -152,22 +152,16 @@ export default function Page() {
     const rNum = currentRound + 1;
     setLogs(prev => [`【${rNum}回戦・ロン君の攻撃】 ロン君の狙い:${ronTargetCourse} ➔ あなたの守備:${course} 【${isSaved ? 'セーブ成功' : '失点'}】`, ...prev]);
     
-    setMessage(`${resultText} ➔ ロン君の攻撃終了。下のボタンを押して一度画面を初期状態に戻してください。`);
+    setMessage(`${resultText} ➔ ロン君の攻撃終了。下のボタンを押して判定を確認してください。`);
     setGameState('defend_result');
   };
 
-  // ボタンクリック時：初期画面（setup）の状態へ完全に遷移し、テキストのみを更新する
-  const advanceAfterDefend = () => {
+  // ワンクッション：守備結果を確認するボタンの処理
+  const handleConfirmResult = () => {
     clearActiveTimer();
-    
-    // 1. 画面の配置とゲーム状態を完全に初期状態（setup）へ戻す
-    setBallLeft('50%');
-    setBallTop('85%');
-    setKeeperLeft('50%');
-    setKeeperTop('30%');
-    setGameState('setup');
+    setGameState('confirm_next');
 
-    // 2. 勝敗判定
+    // 勝敗判定
     if (playerScore >= 3 && ronScore < 3) {
       setGameState('game_over');
       setMessage(`🏆 試合終了！あなたの勝ちです！ 🎉（結果：${playerScore} 対 ${ronScore}）`);
@@ -187,9 +181,22 @@ export default function Page() {
       return;
     }
 
-    // 3. 次の回戦の処理と、案内テキストの更新のみを行う
+    // 次の回戦へ内部カウントを進め、案内メッセージを更新
     setCurrentRound(nextRound);
-    setMessage(`第 ${currentRound + 1}回戦が終了しました！下の「キックオフ！」ボタンを押すと、第 ${nextRound + 1}回戦が始まります。`);
+    setMessage(`第 ${currentRound + 1}回戦のすべてのフェーズが終了しました。下のボタンを押して初期画面に戻り、次の回戦の案内を確認してください。`);
+  };
+
+  // ワンクッション後：ボタンクリックで確実に初期の画面（setup）に遷移し、テキストのみを更新する
+  const advanceToSetup = () => {
+    // 1. 画面の配置とゲーム状態を完全に初期状態（setup）へ戻す
+    setBallLeft('50%');
+    setBallTop('85%');
+    setKeeperLeft('50%');
+    setKeeperTop('30%');
+    setGameState('setup');
+
+    // 2. 案内テキスト（message）のみを更新する
+    setMessage(`第 ${currentRound}回戦が終了しました！下の「キックオフ！」ボタンを押すと、第 ${currentRound + 1}回戦が始まります。`);
   };
 
   // 完全リセット
@@ -209,7 +216,7 @@ export default function Page() {
     setKeeperTop('30%');
   };
 
-  const isDefendMode = (gameState === 'countdown' || gameState === 'defend_click' || gameState === 'defend_result');
+  const isDefendMode = (gameState === 'countdown' || gameState === 'defend_click' || gameState === 'defend_result' || gameState === 'confirm_next');
 
   if (!isMounted) {
     return <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif' }}>読み込み中...</div>;
@@ -281,8 +288,13 @@ export default function Page() {
           </button>
         )}
         {gameState === 'defend_result' && (
-          <button onClick={advanceAfterDefend} style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold', backgroundColor: '#4caf50', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-            ⏭️ 判定を確認して初期画面に戻る
+          <button onClick={handleConfirmResult} style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold', backgroundColor: '#4caf50', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+            ⏭️ 判定を確認する
+          </button>
+        )}
+        {gameState === 'confirm_next' && (
+          <button onClick={advanceToSetup} style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold', backgroundColor: '#00bcd4', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+            🔄 初期画面に戻して次の回戦の案内を出す
           </button>
         )}
         {gameState === 'game_over' && (
@@ -384,7 +396,7 @@ export default function Page() {
       {/* 中断リセットボタン */}
       {gameState !== 'setup' && gameState !== 'game_over' && (
         <button onClick={resetGame} style={{ padding: '6px 12px', background: '#f7fafc', border: '1px solid #cbd5e0', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', color: '#718096' }}>
-          試合をリセットしてやり長す
+          試合をリセットしてやり直す
         </button>
       )}
 
