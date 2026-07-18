@@ -3,14 +3,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 export default function Page() {
-  // ハイドレーション＆クラッシュ防止マウント判定
   const [isMounted, setIsMounted] = useState(false);
+  const pitchRef = useRef(null);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  // ピッチ要素を確実に捕捉するためのRef（e.currentTargetのnullエラー対策）
-  const pitchRef = useRef(null);
 
   // ゲームの状態管理
   const [gameState, setGameState] = useState('attack'); 
@@ -30,7 +28,7 @@ export default function Page() {
   const [keeperLeft, setKeeperLeft] = useState('50%');
   const [keeperTop, setKeeperTop] = useState('35%');
 
-  // 勝敗判定ロジック
+  // 勝敗判定
   const checkGameOver = (pScore, rScore, round, isAfterDefend) => {
     if (pScore >= 3 && rScore < 3 && isAfterDefend) {
       setWinner('あなた');
@@ -61,18 +59,23 @@ export default function Page() {
 
   // あなたの攻撃（クリックイベント）
   const handleAttack = (e) => {
+    // 1. 状態ガード
     if (gameState !== 'attack') return;
-    
-    // Refからピッチの正確な位置・サイズを取得（nullチェック付きで絶対安全に）
-    if (!pitchRef.current) return;
+    if (!pitchRef || !pitchRef.current) return;
+
+    // 2. クラッシュ防止：イベントデータを即座にローカル変数に固定（最重要）
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    // 3. 要素の座標計算
     const rect = pitchRef.current.getBoundingClientRect();
     if (!rect) return;
 
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const clickX = clientX - rect.left;
+    const clickY = clientY - rect.top;
 
-    // ゴールポストの外（下側）のクリックは無効化
-    if (clickY > 180) return;
+    // ゴールポストの外（下側）のクリックは処理しない
+    if (clickY > 180 || clickX < 0 || clickX > 400) return;
 
     // 確率計算用の数値
     const ballXPercent = (clickX / 400) * 100;
@@ -80,11 +83,11 @@ export default function Page() {
     const ronXPercent = 25 + Math.random() * 50; 
     const ronYPercent = 20 + Math.random() * 35;
 
-    // 表示位置の更新
-    setBallLeft(`${ballXPercent}%`);
-    setBallTop(`${ballYPercent}%`);
-    setKeeperLeft(`${ronXPercent}%`);
-    setKeeperTop(`${ronYPercent}%`);
+    // 表示位置の更新（安全な文字列リテラル）
+    setBallLeft(String(ballXPercent) + '%');
+    setBallTop(String(ballYPercent) + '%');
+    setKeeperLeft(String(ronXPercent) + '%');
+    setKeeperTop(String(ronYPercent) + '%');
 
     // ゴール判定（キーパーとボールの距離を計算）
     const xDiff = clickX - (ronXPercent * 400) / 100;
@@ -107,8 +110,8 @@ export default function Page() {
     setPlayerHistory(nextHistory);
 
     const rNum = currentRound + 1;
-    setLogs(prev => [`【${rNum}回戦・あなた攻撃】 → ${result}`, ...prev]);
-    setCurrentActionMessage(`${result} 次は守備の番です。下のオレンジのボタンを押してロン君のシュートを止めましょう！`);
+    setLogs(prev => ['【' + rNum + '回戦・あなた攻撃】 → ' + result, ...prev]);
+    setCurrentActionMessage(result + ' 次は守備の番です。下のオレンジのボタンを押してロン君のシュートを止めましょう！');
     setGameState('defend_ready');
   };
 
@@ -121,10 +124,10 @@ export default function Page() {
     const playerX = 25 + Math.random() * 50;
     const playerY = 20 + Math.random() * 35;
 
-    setBallLeft(`${ronX}%`);
-    setBallTop(`${ronY}%`);
-    setKeeperLeft(`${playerX}%`);
-    setKeeperTop(`${playerY}%`);
+    setBallLeft(String(ronX) + '%');
+    setBallTop(String(ronY) + '%');
+    setKeeperLeft(String(playerX) + '%');
+    setKeeperTop(String(playerY) + '%');
 
     const xDiff = ((ronX - playerX) * 400) / 100;
     const yDiff = ((ronY - playerY) * 288) / 100;
@@ -150,11 +153,11 @@ export default function Page() {
 
     const rNum = currentRound + 1;
     const detail = isSaved ? 'あなたがセーブ！' : 'ロン君ゴール！';
-    setLogs(prev => [`【${rNum}回戦・ロン君攻撃】 → ${detail}`, ...prev]);
+    setLogs(prev => ['【' + rNum + '回戦・ロン君攻撃】 → ' + detail, ...prev]);
 
     const isOver = checkGameOver(playerScore, nextRonScore, nextRound, true);
     if (!isOver) {
-      setCurrentActionMessage(`${result} ${nextRound + 1}回戦に突入！ゴール内をクリックしてシュートしてください。`);
+      setCurrentActionMessage(result + ' ' + (nextRound + 1) + '回戦に突入！ゴール内をクリックしてシュートしてください。');
       setGameState('attack');
     }
   };
@@ -176,7 +179,6 @@ export default function Page() {
     setCurrentActionMessage('ゴール内をクリックしてシュート！');
   };
 
-  // クライアント側で準備ができるまでは簡易表示でクラッシュを防ぐ
   if (!isMounted) {
     return <div style={{ padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>ゲームを読み込み中...</div>;
   }
@@ -231,7 +233,7 @@ export default function Page() {
       }}>
         {gameState === 'attack' && '⚔️ あなたの攻撃ターン'}
         {gameState === 'defend_ready' && '🛡️ ロン君の攻撃（あなたの守備ターン）'}
-        {gameState === 'game_over' && `🏆 試合終了 【勝者: ${winner}】`}
+        {gameState === 'game_over' && '🏆 試合終了 【勝者: ' + winner + '】'}
         <div style={{ fontWeight: 'normal', fontSize: '12px', color: '#444444', marginTop: '4px' }}>
           {currentActionMessage}
         </div>
