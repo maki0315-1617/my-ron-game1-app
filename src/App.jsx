@@ -43,8 +43,22 @@ export default function Page() {
   useEffect(() => {
     setIsMounted(true);
     logDebug('ゲームコンポーネントがマウントされました。');
+
+    // 【追加】画面が真っ白になる原因（Javascriptのエラー）を強制的にキャッチしてログに残す機構
+    const handleGlobalError = (event) => {
+      logDebug(`【致命的エラー】 ${event.message} at ${event.filename}:${event.lineno}`);
+    };
+    const handleRejection = (event) => {
+      logDebug(`【非同期エラー】 ${event.reason}`);
+    };
+
+    window.addEventListener('error', handleGlobalError);
+    window.addEventListener('unhandledrejection', handleRejection);
+
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', handleRejection);
     };
   }, []);
 
@@ -58,178 +72,205 @@ export default function Page() {
 
   // ゲームスタート（または各回戦の開始）
   const handleStart = () => {
-    logDebug('ゲームスタートがクリックされました。');
-    clearActiveTimer();
-    setGameState('attack');
-    setMessage(`⚽ 第 ${currentRound + 1}回戦 あなたの攻撃：上のゴール枠内の好きなところ（左・中央・右）をクリックしてシュート！`);
-    setBallLeft('50%');
-    setBallTop('85%');
-    setKeeperLeft('50%');
-    setKeeperTop('30%');
+    try {
+      logDebug('ゲームスタートがクリックされました。');
+      clearActiveTimer();
+      setGameState('attack');
+      setMessage(`⚽ 第 ${currentRound + 1}回戦 あなたの攻撃：上のゴール枠内の好きなところ（左・中央・右）をクリックしてシュート！`);
+      setBallLeft('50%');
+      setBallTop('85%');
+      setKeeperLeft('50%');
+      setKeeperTop('30%');
+    } catch (e) {
+      logDebug(`handleStart内でエラー: ${e.message}`);
+    }
   };
 
   // あなたの攻撃
   const handlePitchClickAttack = (course) => {
-    if (gameState !== 'attack') return;
-    logDebug(`あなたの攻撃：コース ${course}`);
+    try {
+      if (gameState !== 'attack') return;
+      logDebug(`あなたの攻撃：コース ${course}`);
 
-    const courses = ['左', '中央', '右'];
-    const ronCourse = courses[Math.floor(Math.random() * 3)];
-    const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
-    
-    setBallLeft(posMap[course]);
-    setBallTop('30%');
-    setKeeperLeft(posMap[ronCourse]);
+      const courses = ['左', '中央', '右'];
+      const ronCourse = courses[Math.floor(Math.random() * 3)];
+      const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
+      
+      setBallLeft(posMap[course]);
+      setBallTop('30%');
+      setKeeperLeft(posMap[ronCourse]);
 
-    const isGoal = course !== ronCourse;
-    let resultText = '';
-    let newScore = playerScore;
-    const nextPlayerHistory = [...playerHistory];
+      const isGoal = course !== ronCourse;
+      let resultText = '';
+      let newScore = playerScore;
+      const nextPlayerHistory = [...playerHistory];
 
-    if (isGoal) {
-      newScore += 1;
-      setPlayerScore(newScore);
-      resultText = '〇 ゴール！';
-      nextPlayerHistory[currentRound] = '〇';
-    } else {
-      resultText = '× ロン君に止められた…';
-      nextPlayerHistory[currentRound] = '×';
+      if (isGoal) {
+        newScore += 1;
+        setPlayerScore(newScore);
+        resultText = '〇 ゴール！';
+        nextPlayerHistory[currentRound] = '〇';
+      } else {
+        resultText = '× ロン君に止められた…';
+        nextPlayerHistory[currentRound] = '×';
+      }
+
+      setPlayerHistory(nextPlayerHistory);
+      const rNum = currentRound + 1;
+      setLogs(prev => [`【${rNum}回戦・あなたの攻撃】 ${course}を狙った ➔ ロン君は${ronCourse}を守った：${resultText}`, ...prev]);
+      setMessage(`${resultText} ➔ あなたの攻撃終了。次は守備です。「守備フェーズへ進む」を押すと、位置が入れ替わってカウントダウンが始まります！`);
+      setGameState('attack_result');
+    } catch (e) {
+      logDebug(`handlePitchClickAttack内でエラー: ${e.message}`);
     }
-
-    setPlayerHistory(nextPlayerHistory);
-    const rNum = currentRound + 1;
-    setLogs(prev => [`【${rNum}回戦・あなたの攻撃】 ${course}を狙った ➔ ロン君は${ronCourse}を守った：${resultText}`, ...prev]);
-    setMessage(`${resultText} ➔ あなたの攻撃終了。次は守備です。「守備フェーズへ進む」を押すと、位置が入れ替わってカウントダウンが始まります！`);
-    setGameState('attack_result');
   };
 
   // 守備フェーズへの切り替え
   const startDefendPhase = () => {
-    logDebug('守備フェーズを開始します。');
-    clearActiveTimer();
-    setGameState('countdown');
-    setCountdownNum(3);
-    setMessage('🛡️ ロン君の攻撃ターン！位置が入れ替わります。身構えてください！');
-    
-    setBallLeft('50%');
-    setBallTop('85%'); 
-    setKeeperLeft('50%');
-    setKeeperTop('30%'); 
+    try {
+      logDebug('守備フェーズを開始します。');
+      clearActiveTimer();
+      setGameState('countdown');
+      setCountdownNum(3);
+      setMessage('🛡️ ロン君の攻撃ターン！位置が入れ替わります。身構えてください！');
+      
+      setBallLeft('50%');
+      setBallTop('85%'); 
+      setKeeperLeft('50%');
+      setKeeperTop('30%'); 
 
-    const courses = ['左', '中央', '右'];
-    const ronChoice = courses[Math.floor(Math.random() * 3)];
-    setRonTargetCourse(ronChoice);
+      const courses = ['左', '中央', '右'];
+      const ronChoice = courses[Math.floor(Math.random() * 3)];
+      setRonTargetCourse(ronChoice);
 
-    let count = 3;
-    logDebug('カウントダウンを開始します。');
-    timerRef.current = setInterval(() => {
-      count -= 1;
-      if (count > 0) {
-        setCountdownNum(count);
-      } else if (count === 0) {
-        logDebug('カウントダウン終了。ロン君のキック！');
-        // 【修正ポイント】ここでタイマーをクリア！
-        clearActiveTimer();
-        setCountdownNum('KICK!');
-        setMessage('🏃‍♂️ ロン君が蹴った！上のゴール枠内（左・中央・右）をクリックしてシュートを止めて！');
-        setGameState('defend_click');
-        
-        const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
-        setBallLeft(posMap[ronChoice]);
-        setBallTop('30%'); 
-      }
-    }, 1000);
+      let count = 3;
+      logDebug('カウントダウンを開始します。');
+      timerRef.current = setInterval(() => {
+        count -= 1;
+        if (count > 0) {
+          setCountdownNum(count);
+        } else if (count === 0) {
+          logDebug('カウントダウン終了。ロン君のキック！');
+          clearActiveTimer();
+          setCountdownNum('KICK!');
+          setMessage('🏃‍♂️ ロン君が蹴った！上のゴール枠内（左・中央・右）をクリックしてシュートを止めて！');
+          setGameState('defend_click');
+          
+          const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
+          setBallLeft(posMap[ronChoice]);
+          setBallTop('30%'); 
+        }
+      }, 1000);
+    } catch (e) {
+      logDebug(`startDefendPhase内でエラー: ${e.message}`);
+    }
   };
 
   // あなたの守備
   const handlePitchClickDefend = (course) => {
-    if (gameState !== 'defend_click') return;
-    logDebug(`あなたの守備：コース ${course}`);
+    try {
+      if (gameState !== 'defend_click') return;
+      logDebug(`あなたの守備：コース ${course}`);
 
-    const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
-    setKeeperLeft(posMap[course]);
+      const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
+      setKeeperLeft(posMap[course]);
 
-    const isSaved = course === ronTargetCourse;
-    let resultText = '';
-    let newRonScore = ronScore;
-    const nextRonHistory = [...ronHistory];
+      const isSaved = course === ronTargetCourse;
+      let resultText = '';
+      let newRonScore = ronScore;
+      const nextRonHistory = [...ronHistory];
 
-    if (isSaved) {
-      resultText = '〇 ナイスセーブ！ロン君のシュートを止めました！';
-      nextRonHistory[currentRound] = '〇';
-    } else {
-      newRonScore += 1;
-      setRonScore(newRonScore);
-      resultText = '× 決められた… ロン君のゴール！';
-      nextRonHistory[currentRound] = '×';
+      if (isSaved) {
+        resultText = '〇 ナイスセーブ！ロン君のシュートを止めました！';
+        nextRonHistory[currentRound] = '〇';
+      } else {
+        newRonScore += 1;
+        setRonScore(newRonScore);
+        resultText = '× 決められた… ロン君のゴール！';
+        nextRonHistory[currentRound] = '×';
+      }
+
+      setRonHistory(nextRonHistory);
+      const rNum = currentRound + 1;
+      setLogs(prev => [`【${rNum}回戦・ロン君の攻撃】 ロン君の狙い:${ronTargetCourse} ➔ あなたの守備:${course} 【${isSaved ? 'セーブ成功' : '失点'}】`, ...prev]);
+      
+      setMessage(`${resultText} ➔ ロン君の攻撃終了。下のボタンを押して一度画面を初期状態に戻してください。`);
+      setGameState('defend_result');
+    } catch (e) {
+      logDebug(`handlePitchClickDefend内でエラー: ${e.message}`);
     }
-
-    setRonHistory(nextRonHistory);
-    const rNum = currentRound + 1;
-    setLogs(prev => [`【${rNum}回戦・ロン君の攻撃】 ロン君の狙い:${ronTargetCourse} ➔ あなたの守備:${course} 【${isSaved ? 'セーブ成功' : '失点'}】`, ...prev]);
-    
-    setMessage(`${resultText} ➔ ロン君の攻撃終了。下のボタンを押して一度画面を初期状態に戻してください。`);
-    setGameState('defend_result');
   };
 
   // ボタンクリックで初期画面に戻しつつ、次へ進むかゲームオーバーかを安全に判定
   const advanceAfterDefend = () => {
-    logDebug('判定を確認し、次のフェーズへ進みます。');
-    clearActiveTimer();
-    
-    // 【修正ポイント】配置を初期状態（setup）へ完全に戻す
-    setBallLeft('50%');
-    setBallTop('85%');
-    setKeeperLeft('50%');
-    setKeeperTop('30%');
+    try {
+      logDebug('判定を確認し、次のフェーズへ進みます。');
+      clearActiveTimer();
+      
+      // 配置を初期状態へ完全に戻す
+      setBallLeft('50%');
+      setBallTop('85%');
+      setKeeperLeft('50%');
+      setKeeperTop('30%');
 
-    // 終了条件のチェック
-    if (playerScore >= 3 && ronScore < 3) {
-      logDebug('勝敗判定：あなたの勝ち。');
-      setGameState('game_over');
-      setMessage(`🏆 試合終了！あなたの勝ちです！ 🎉（結果：${playerScore} 対 ${ronScore}）`);
-      return;
-    }
-    if (ronScore >= 3 && playerScore < 3) {
-      logDebug('勝敗判定：ロン君の勝ち。');
-      setGameState('game_over');
-      setMessage(`🐈 試合終了！ロン君の勝ちです…（結果：${playerScore} 対 ${ronScore}）`);
-      return;
-    }
+      // 終了条件のチェック
+      if (playerScore >= 3 && ronScore < 3) {
+        logDebug('勝敗判定：あなたの勝ち。');
+        setGameState('game_over');
+        setMessage(`🏆 試合終了！あなたの勝ちです！ 🎉（結果：${playerScore} 対 ${ronScore}）`);
+        return;
+      }
+      if (ronScore >= 3 && playerScore < 3) {
+        logDebug('勝敗判定：ロン君の勝ち。');
+        setGameState('game_over');
+        setMessage(`🐈 試合終了！ロン君の勝ちです…（結果：${playerScore} 対 ${ronScore}）`);
+        return;
+      }
 
-    const nextRound = currentRound + 1;
-    if (nextRound >= 5) {
-      logDebug('勝敗判定：5回戦終了。');
-      setGameState('game_over');
-      const finalWinner = playerScore > ronScore ? 'あなたの勝ち！🎉' : playerScore < ronScore ? 'ロン君の勝ち 🐈' : '引き分け 🤝';
-      setMessage(`🏆 5回戦すべて終了しました！ 結果：${finalWinner}（${playerScore} 対 ${ronScore}）`);
-      return;
-    }
+      const nextRound = currentRound + 1;
+      if (nextRound >= 5) {
+        logDebug('勝敗判定：5回戦終了。');
+        setGameState('game_over');
+        const finalWinner = playerScore > ronScore ? 'あなたの勝ち！🎉' : playerScore < ronScore ? 'ロン君の勝ち 🐈' : '引き分け 🤝';
+        setMessage(`🏆 5回戦すべて終了しました！ 結果：${finalWinner}（${playerScore} 対 ${ronScore}）`);
+        return;
+      }
 
-    logDebug(`ゲーム続行：第 ${nextRound + 1} 回戦へ。`);
-    // ゲーム続行の場合は回戦を進めて setup 状態へ戻す
-    setCurrentRound(nextRound);
-    setGameState('setup');
-    setMessage(`第 ${currentRound + 1}回戦が終了しました！下の「キックオフ！」ボタンを押すと、第 ${nextRound + 1}回戦が始まります。`);
+      logDebug(`ゲーム続行：第 ${nextRound + 1} 回戦へ。`);
+      
+      // 安全にメッセージ文字列をあらかじめ作成してからステート変更する
+      const nextRoundDisplay = nextRound + 1;
+      const finishedRoundDisplay = currentRound + 1;
+      const nextMessage = `第 ${finishedRoundDisplay}回戦が終了しました！下の「キックオフ！」ボタンを押すと、第 ${nextRoundDisplay}回戦が始まります。`;
+
+      setCurrentRound(nextRound);
+      setGameState('setup');
+      setMessage(nextMessage);
+    } catch (e) {
+      logDebug(`advanceAfterDefend内でエラー: ${e.message}`);
+    }
   };
 
   // 完全リセット
   const resetGame = () => {
-    logDebug('ゲームをリセットします。');
-    clearActiveTimer();
-    setPlayerScore(0);
-    setRonScore(0);
-    setCurrentRound(0);
-    setLogs([]);
-    setPlayerHistory([null, null, null, null, null]);
-    setRonHistory([null, null, null, null, null]);
-    setDebugLog(''); // ログもリセット
-    setGameState('setup');
-    setMessage('準備ができたら下の「キックオフ！」ボタンを押してね！');
-    setBallLeft('50%');
-    setBallTop('85%');
-    setKeeperLeft('50%');
-    setKeeperTop('30%');
+    try {
+      logDebug('ゲームをリセットします。');
+      clearActiveTimer();
+      setPlayerScore(0);
+      setRonScore(0);
+      setCurrentRound(0);
+      setLogs([]);
+      setPlayerHistory([null, null, null, null, null]);
+      setRonHistory([null, null, null, null, null]);
+      setGameState('setup');
+      setMessage('準備ができたら下の「キックオフ！」ボタンを押してね！');
+      setBallLeft('50%');
+      setBallTop('85%');
+      setKeeperLeft('50%');
+      setKeeperTop('30%');
+    } catch (e) {
+      logDebug(`resetGame内でエラー: ${e.message}`);
+    }
   };
 
   const isDefendMode = (gameState === 'countdown' || gameState === 'defend_click' || gameState === 'defend_result');
@@ -423,13 +464,13 @@ export default function Page() {
         </div>
       </div>
 
-      {/* デバッグ用テキストボックス */}
+      {/* デバッグ用テキストエリア */}
       <div style={{ marginTop: '20px', textAlign: 'left' }}>
-        <h3 style={{ fontSize: '14px', marginBottom: '5px' }}>デバッグログ</h3>
+        <h3 style={{ fontSize: '14px', marginBottom: '5px', fontWeight: 'bold' }}>デバッグログ（エラー監視中）</h3>
         <textarea
           value={debugLog}
           readOnly
-          style={{ width: '100%', height: '150px', fontSize: '12px', padding: '5px', boxSizing: 'border-box' }}
+          style={{ width: '100%', height: '140px', fontSize: '11px', padding: '6px', boxSizing: 'border-box', fontFamily: 'monospace', background: '#222', color: '#fff', borderRadius: '4px' }}
         />
       </div>
     </div>
