@@ -36,10 +36,10 @@ export default function Page() {
     setIsMounted(true);
   }, []);
 
-  // ゲームスタート
+  // ゲームスタート（または各回戦の開始）
   const handleStart = () => {
     setGameState('attack');
-    setMessage('⚽ あなたの攻撃：上のゴール枠内の好きなところ（左・中央・右）をクリックしてシュート！');
+    setMessage(`⚽ 第 ${currentRound + 1}回戦 あなたの攻撃：上のゴール枠内の好きなところ（左・中央・右）をクリックしてシュート！`);
     setBallLeft('50%');
     setBallTop('85%');
     setKeeperLeft('50%');
@@ -89,7 +89,7 @@ export default function Page() {
     setCountdownNum(3);
     setMessage('🛡️ ロン君の攻撃ターン！位置が入れ替わります。身構えてください！');
     
-    // 【位置反転】ロン君が下（キッカー）、人間（GK）が上（ゴール）
+    // 位置反転：ロン君が下（キッカー）、人間（GK）が上（ゴール）
     setBallLeft('50%');
     setBallTop('85%'); 
     setKeeperLeft('50%');
@@ -111,7 +111,7 @@ export default function Page() {
         setMessage('🏃‍♂️ ロン君が蹴った！上のゴール枠内（左・中央・右）をクリックしてシュートを止めて！');
         setGameState('defend_click');
         
-        // ボールが下から上に向かって飛んでいく！
+        // ボールが下から上に向かって飛んでいく
         const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
         setBallLeft(posMap[ronChoice]);
         setBallTop('30%'); 
@@ -149,16 +149,16 @@ export default function Page() {
     const rNum = currentRound + 1;
     setLogs(prev => [`【${rNum}回戦・ロン君の攻撃】 ロン君の狙い:${ronTargetCourse} ➔ あなたの守備:${course} 【${isSaved ? 'セーブ成功' : '失点'}】`, ...prev]);
     
-    setMessage(`${resultText} ➔ ロン君の攻撃終了。下の「次のフェーズへ進む」ボタンを押してください。`);
+    setMessage(`${resultText} ➔ ロン君の攻撃終了。下のボタンを押して一度画面を初期位置に戻してください。`);
     setGameState('defend_result');
   };
 
-  // 守備結果を確認した後に、初期画面位置に戻してテキストと回戦を安全に更新
+  // 【修正箇所】次の回戦へ進むボタンが押されたら、確実に初期画面（setup）の状態に戻す
   const advanceAfterDefend = () => {
     const nextRound = currentRound + 1;
     setCurrentRound(nextRound);
 
-    // 【安全策】ボタンクリックと同時にピッチの配置を確実に初期状態に戻す
+    // ピッチの配置を完全に初期状態へ戻す
     setBallLeft('50%');
     setBallTop('85%');
     setKeeperLeft('50%');
@@ -176,9 +176,9 @@ export default function Page() {
       const finalWinner = playerScore > ronScore ? 'あなたの勝ち！🎉' : playerScore < ronScore ? 'ロン君の勝ち 🐈' : '引き分け 🤝';
       setMessage(`🏆 5回戦すべて終了しました！ 結果：${finalWinner}（${playerScore} 対 ${ronScore}）`);
     } else {
-      // 次のラウンドの攻撃へ安全に移行
-      setGameState('attack');
-      setMessage(`次は第 ${nextRound + 1}回戦です！上のゴール内をクリックしてシュート！`);
+      // 画面を初期画面（setup）の状態に戻し、メッセージテキストのみを更新する
+      setGameState('setup');
+      setMessage(`第 ${currentRound + 1}回戦が終了しました！下の「キックオフ！」ボタンを押すと、第 ${nextRound + 1}回戦が始まります。`);
     }
   };
 
@@ -208,7 +208,7 @@ export default function Page() {
     <div style={{ padding: '15px', fontFamily: 'sans-serif', maxWidth: '440px', margin: '0 auto', textAlign: 'center', color: '#333333' }}>
       <h2 style={{ fontSize: '18px', marginBottom: '15px', fontWeight: 'bold' }}>黒猫ロン君とのPK戦（5回戦・3点先取）</h2>
 
-      {/* 📊 5回戦マトリックス表（星取表） */}
+      {/* 📊 5回戦マトリックス表 */}
       <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '15px', fontSize: '12px', background: '#ffffff', border: '1px solid #dddddd' }}>
         <thead>
           <tr style={{ backgroundColor: '#f8f9fa' }}>
@@ -271,7 +271,7 @@ export default function Page() {
         )}
         {gameState === 'defend_result' && (
           <button onClick={advanceAfterDefend} style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold', backgroundColor: '#4caf50', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-            ⏭️ 判定を確認して次のフェーズへ進む
+            ⏭️ 判定を確認して初期画面に戻す
           </button>
         )}
         {gameState === 'game_over' && (
@@ -294,14 +294,14 @@ export default function Page() {
           transition: 'background-color 0.3s'
         }}>
           
-          {/* ⏰ カウントダウンオーバーレイ表示 */}
+          {/* ⏰ カウントダウンオーバーレイ */}
           {gameState === 'countdown' && (
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#ffffff', fontSize: '60px', fontWeight: 'bold', fontStyle: 'italic' }}>
               {countdownNum}
             </div>
           )}
 
-          {/* ゴールポスト（常に上側に配置される白枠線） */}
+          {/* ゴールポスト */}
           <div style={{
             position: 'absolute',
             top: '15px',
@@ -316,16 +316,16 @@ export default function Page() {
             borderRadius: '4px 4px 0 0',
             display: 'flex'
           }}>
-            {/* ⚔️ あなたの攻撃時の3分割クリックエリア */}
+            {/* ⚔️ あなたの攻撃時エリア */}
             {gameState === 'attack' && (
               <>
                 <div onClick={() => handlePitchClickAttack('左')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
                 <div onClick={() => handlePitchClickAttack('中央')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
-                <div onClick={() => handlePitchClickAttack('右')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
+                <div onClick={() => handlePitchClickAttack('right')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} onClick={() => handlePitchClickAttack('右')} />
               </>
             )}
 
-            {/* 🛡️ あなたの守備時の3分割クリックエリア */}
+            {/* 🛡️ あなたの守備時エリア */}
             {gameState === 'defend_click' && (
               <>
                 <div onClick={() => handlePitchClickDefend('左')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'rgba(255,255,255,0.05)', borderRight: '1px dashed rgba(255,255,255,0.2)' }} title="左を守る！" />
@@ -335,7 +335,7 @@ export default function Page() {
             )}
           </div>
 
-          {/* 上側：キーパー（あなたの攻撃時は「ロン君 🐈‍⬛」、あなたの守備時は「あなた 🧍」） */}
+          {/* 上側：キーパー */}
           <div style={{
             position: 'absolute',
             left: keeperLeft,
@@ -363,7 +363,7 @@ export default function Page() {
             ⚽
           </div>
 
-          {/* 下側：キッカー（あなたの攻撃時は「あなた 🏃‍♂️」、あなたの守備時は「ロン君 🐈‍⬛」） */}
+          {/* 下側：キッカー */}
           <div style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', fontSize: '38px', opacity: 0.9 }}>
             {isDefendMode ? '🐈‍⬛' : '🏃‍♂️'}
           </div>
@@ -373,7 +373,7 @@ export default function Page() {
       {/* 中断リセットボタン */}
       {gameState !== 'setup' && gameState !== 'game_over' && (
         <button onClick={resetGame} style={{ padding: '6px 12px', background: '#f7fafc', border: '1px solid #cbd5e0', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', color: '#718096' }}>
-          試合をリセットしてやり直す
+          試合をリセットしてやり長す
         </button>
       )}
 
