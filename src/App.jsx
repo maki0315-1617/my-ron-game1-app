@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 
 export default function RonPkGame() {
@@ -11,17 +13,17 @@ export default function RonPkGame() {
   // 1回戦〜5回戦の記録用配列（null, '〇', '×'）
   const [playerHistory, setPlayerHistory] = useState([null, null, null, null, null]);
   const [ronHistory, setRonHistory] = useState([null, null, null, null, null]);
-  const [currentRound, setCurrentRound] = useState(0); // 0〜4 (1回戦〜5回戦)
+  const [currentRound, setCurrentRound] = useState(0); 
 
-  const [winner, setWinner] = useState(null);
+  const [winner, setWinner] = useState('');
 
   // ゴールのサイズ定義
   const goalWidth = 400;
   const goalHeight = 180;
 
   // 動的な位置情報（%で管理）
-  const [ballPos, setBallPos] = useState({ x: 50, y: 115 }); // 初期位置はグラウンド中央
-  const [keeperPos, setKeeperPos] = useState({ x: 50, y: 35 });  // 初期位置はゴール中央
+  const [ballPos, setBallPos] = useState({ x: 50, y: 115 }); 
+  const [keeperPos, setKeeperPos] = useState({ x: 50, y: 35 });  
 
   // 勝敗チェック関数
   const checkGameOver = (nextPlayerScore, nextRonScore, nextRound, isAfterDefend) => {
@@ -66,13 +68,11 @@ export default function RonPkGame() {
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
 
-    // ゴール枠内（高さ180pxまで）のクリックを判定
     if (clickY > goalHeight) return;
 
     const ballXPercent = (clickX / goalWidth) * 100;
     const ballYPercent = (clickY / (goalHeight * 1.6)) * 100;
 
-    // ロン君（黒猫キーパー）の動く位置をランダムで決定
     const ronXPercent = 25 + Math.random() * 50; 
     const ronYPercent = 20 + Math.random() * 35;
 
@@ -111,11 +111,9 @@ export default function RonPkGame() {
   const handleDefend = () => {
     if (gameState !== 'defend_ready') return;
 
-    // ロン君（シュート）のランダムな位置
     const ronXPercent = 15 + Math.random() * 70;
     const ronYPercent = 15 + Math.random() * 40;
 
-    // あなた（人間キーパー）のランダムな動き
     const playerXPercent = 25 + Math.random() * 50;
     const playerYPercent = 20 + Math.random() * 35;
 
@@ -159,7 +157,6 @@ export default function RonPkGame() {
     }
   };
 
-  // ゲームリセット
   const resetGame = () => {
     setPlayerScore(0);
     setRonScore(0);
@@ -167,7 +164,7 @@ export default function RonPkGame() {
     setPlayerHistory([null, null, null, null, null]);
     setRonHistory([null, null, null, null, null]);
     setCurrentRound(0);
-    setWinner(null);
+    setWinner('');
     setGameState('attack');
     setBallPos({ x: 50, y: 115 });
     setKeeperPos({ x: 50, y: 35 });
@@ -230,14 +227,13 @@ export default function RonPkGame() {
         </div>
       </div>
 
-      {/* メインゲームピッチ (ゴールとグラウンド) */}
+      {/* メインゲームピッチ */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '15px' }}>
         <div 
           onClick={gameState === 'attack' ? handleAttack : undefined}
           style={{
             width: goalWidth + 'px',
             height: (goalHeight * 1.6) + 'px', 
-            // 攻撃時は芝生（外側）、守備時はゴール奥の暗がり（内側から見ているイメージ）
             background: gameState === 'attack' ? '#2e7d32' : '#114016', 
             position: 'relative',
             cursor: gameState === 'attack' ? 'crosshair' : 'not-allowed',
@@ -247,18 +243,16 @@ export default function RonPkGame() {
             transition: 'background 0.3s ease'
           }}
         >
-          {/* 1. サッカーゴールエリア（上部） */}
+          {/* ゴールポスト */}
           <div style={{
             position: 'absolute',
             top: '10px',
             left: '20px',
             width: (goalWidth - 40) + 'px',
             height: goalHeight + 'px',
-            // 攻撃時は手前にポスト（白）、守備時は内側から見ているためポストを薄暗く
             border: gameState === 'attack' ? '5px solid #ffffff' : '5px solid #b0bec5', 
             borderBottom: 'none',
             boxSizing: 'border-box',
-            // 攻撃時は背景ネットを白っぽく透過、守備時は背後が外側（スタジアムの影）になるため濃いグラデーションに
             background: gameState === 'attack' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.25)', 
             backgroundImage: 'linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)',
             backgroundSize: '12px 12px',
@@ -268,7 +262,7 @@ export default function RonPkGame() {
             <div style={{ position: 'absolute', bottom: '-2px', left: '-5px', right: '-5px', height: '2px', backgroundColor: '#fff' }}></div>
           </div>
 
-          {/* 2. グラウンド境界線（下部） */}
+          {/* グラウンドライン */}
           <div style={{
             position: 'absolute',
             top: (goalHeight + 10) + 'px',
@@ -277,7 +271,7 @@ export default function RonPkGame() {
             backgroundColor: 'rgba(255,255,255,0.3)'
           }}></div>
 
-          {/* キーパー (攻撃時は奥に黒猫ロン君 🐈‍⬛ / 守備時は自分が手前(内側)を守る 🧍) */}
+          {/* キーパー */}
           <div style={{
             position: 'absolute',
             left: keeperPos.x + '%',
@@ -292,7 +286,7 @@ export default function RonPkGame() {
             {gameState === 'attack' ? '🐈‍⬛' : '🧍'}
           </div>
 
-          {/* サッカーボール */}
+          {/* ボール */}
           <div style={{
             position: 'absolute',
             left: ballPos.x + '%',
@@ -307,7 +301,7 @@ export default function RonPkGame() {
             ⚽
           </div>
 
-          {/* キッカー位置案内（攻撃時は手前から人間が蹴る、守備時はロン君が外から蹴り込んでくるイメージ） */}
+          {/* キッカー */}
           {gameState === 'attack' && (
             <div style={{ position: 'absolute', bottom: '5px', left: '50%', transform: 'translateX(-50%)', fontSize: '24px', opacity: 0.8 }}>
               🏃‍♂️
@@ -320,7 +314,7 @@ export default function RonPkGame() {
           )}
         </div>
 
-        {/* 守備時のアクションボタン */}
+        {/* 守備ボタン */}
         {gameState === 'defend_ready' && (
           <div style={{ width: goalWidth + 'px', marginTop: '-5px' }}>
             <button 
