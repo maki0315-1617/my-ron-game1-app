@@ -1,20 +1,28 @@
+'use client';
+
 import React, { useState } from 'react';
 
-function Counter() {
-  // 状態（state）を管理するためのフック
+export default function Page() {
+  // カウントを管理するステート
   const [count, setCount] = useState(0);
 
-  // クリック時の処理
-  const handleClick = () => {
-    setCount(count + 1);
-  };
-
   return (
-    <div>
-      <p>現在のカウント: {count}</p>
-      <button onClick={handleClick}>増やす</button>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+      <p style={{ fontSize: '18px', marginBottom: '10px' }}>
+        現在のカウント: {count}
+      </p>
+      
+      {/* ボタンを押すと setCount で count が +1 されます */}
+      <button 
+        onClick={() => setCount(count + 1)}
+        style={{ 
+          padding: '8px 16px', 
+          fontSize: '16px', 
+          cursor: 'pointer' 
+        }}
+      >
+        増
+      </button>
     </div>
   );
 }
-
-export default Counter;
