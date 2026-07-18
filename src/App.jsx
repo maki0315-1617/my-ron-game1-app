@@ -149,14 +149,20 @@ export default function Page() {
     const rNum = currentRound + 1;
     setLogs(prev => [`【${rNum}回戦・ロン君の攻撃】 ロン君の狙い:${ronTargetCourse} ➔ あなたの守備:${course} 【${isSaved ? 'セーブ成功' : '失点'}】`, ...prev]);
     
-    setMessage(`${resultText} ➔ ロン君の攻撃終了。下の「次のフェーズへ進む」ボタンを押して進めてください。`);
+    setMessage(`${resultText} ➔ ロン君の攻撃終了。下の「次のフェーズへ進む」ボタンを押してください。`);
     setGameState('defend_result');
   };
 
-  // 守備結果を確認した後に、次の回戦へ進むかゲームオーバー判定をするボタンの処理
+  // 守備結果を確認した後に、初期画面位置に戻してテキストと回戦を安全に更新
   const advanceAfterDefend = () => {
     const nextRound = currentRound + 1;
     setCurrentRound(nextRound);
+
+    // 【安全策】ボタンクリックと同時にピッチの配置を確実に初期状態に戻す
+    setBallLeft('50%');
+    setBallTop('85%');
+    setKeeperLeft('50%');
+    setKeeperTop('30%');
 
     // 勝敗チェック（3点先取または5回戦終了）
     if (playerScore >= 3 && ronScore < 3) {
@@ -170,15 +176,9 @@ export default function Page() {
       const finalWinner = playerScore > ronScore ? 'あなたの勝ち！🎉' : playerScore < ronScore ? 'ロン君の勝ち 🐈' : '引き分け 🤝';
       setMessage(`🏆 5回戦すべて終了しました！ 結果：${finalWinner}（${playerScore} 対 ${ronScore}）`);
     } else {
-      // 次のラウンドの攻撃へ移行
+      // 次のラウンドの攻撃へ安全に移行
       setGameState('attack');
-      setMessage(`次は第 ${nextRound + 1}回戦です！位置が元に戻ります。上のゴール内をクリックしてシュート！`);
-      
-      // 次のターン（あなたの攻撃）用にピッチ上の初期位置へ戻す
-      setBallLeft('50%');
-      setBallTop('85%');
-      setKeeperLeft('50%');
-      setKeeperTop('30%');
+      setMessage(`次は第 ${nextRound + 1}回戦です！上のゴール内をクリックしてシュート！`);
     }
   };
 
