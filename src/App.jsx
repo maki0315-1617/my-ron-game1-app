@@ -5,12 +5,12 @@ const HISTORY_KEY = "ron-pk-history";
 
 // 6方向
 const directions = [
-  { key: "左上", x: -80, y: -80 },
-  { key: "左下", x: -80, y: 40 },
-  { key: "中央上", x: 0, y: -80 },
+  { key: "左上", x: -120, y: -120 },
+  { key: "左下", x: -120, y: 40 },
+  { key: "中央上", x: 0, y: -120 },
   { key: "中央下", x: 0, y: 40 },
-  { key: "右上", x: 80, y: -80 },
-  { key: "右下", x: 80, y: 40 },
+  { key: "右上", x: 120, y: -120 },
+  { key: "右下", x: 120, y: 40 },
 ];
 
 function getRandomDirection() {
@@ -85,7 +85,7 @@ function App() {
 
     animateKick(dir, ronDir, isGoal);
 
-    const logEntry = `あなた：${dir.key} / ロン君：${ronDir.key} → ${
+    const logEntry = `攻撃：あなた → ${dir.key} / 守備：ロン君 → ${ronDir.key} → ${
       isGoal ? "ゴール！" : "セーブ！"
     }`;
 
@@ -113,7 +113,7 @@ function App() {
 
       animateKick(ronDir, playerGuess, isGoal);
 
-      const logEntry = `ロン君：${ronDir.key} / あなた：${playerGuess.key} → ${
+      const logEntry = `攻撃：ロン君 → ${ronDir.key} / 守備：あなた → ${playerGuess.key} → ${
         isGoal ? "ゴール…" : "止めた！"
       }`;
 
@@ -169,11 +169,14 @@ function App() {
 
   return (
     <div className="app">
-      <h1>黒猫ロン君とのPK戦（アニメーション版）</h1>
+      <h1>黒猫ロン君とのPK戦（アニメーション強化版）</h1>
 
       {/* ゴールエリア */}
       <div className={`goal-area ${goalFlash ? "goal-flash" : ""} ${saveShake ? "save-shake" : ""}`}>
         <div className="goal-frame"></div>
+
+        {/* プレイヤー */}
+        <div className="player"></div>
 
         {/* ボール */}
         <div
@@ -205,12 +208,14 @@ function App() {
       </div>
 
       {/* ログ */}
-      <h3>試合ログ</h3>
-      <ul>
-        {state.log.map((l, i) => (
-          <li key={i}>{l}</li>
-        ))}
-      </ul>
+      <div className="log">
+        <h3>試合ログ</h3>
+        <ul>
+          {state.log.map((l, i) => (
+            <li key={i}>{l}</li>
+          ))}
+        </ul>
+      </div>
 
       <button className="reset-button" onClick={resetGame}>
         新しいPK戦を始める
