@@ -39,7 +39,7 @@ export default function Page() {
   // ゲームスタート
   const handleStart = () => {
     setGameState('attack');
-    setMessage('⚽ あなたの攻撃：ゴール枠内の好きなところ（左・中央・右）をクリックしてシュート！');
+    setMessage('⚽ あなたの攻撃：上のゴール枠内の好きなところ（左・中央・右）をクリックしてシュート！');
     setBallLeft('50%');
     setBallTop('85%');
     setKeeperLeft('50%');
@@ -56,7 +56,7 @@ export default function Page() {
     
     const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
     
-    // ボールがゴールへ、ロン君が守りへ動く
+    // ボールが上のゴールへ、ロン君が守りへ動く
     setBallLeft(posMap[course]);
     setBallTop('30%');
     setKeeperLeft(posMap[ronCourse]);
@@ -79,21 +79,21 @@ export default function Page() {
     setPlayerHistory(nextPlayerHistory);
     const rNum = currentRound + 1;
     setLogs(prev => [`【${rNum}回戦・あなたの攻撃】 ${course}を狙った ➔ ロン君は${ronCourse}を守った：${resultText}`, ...prev]);
-    setMessage(`${resultText} ➔ あなたの攻撃終了。次は守備です。「守備フェーズへ進む」を押すとカウントダウンが始まります！`);
+    setMessage(`${resultText} ➔ あなたの攻撃終了。次は守備です。「守備フェーズへ進む」を押すと、位置が入れ替わってカウントダウンが始まります！`);
     setGameState('attack_result');
   };
 
-  // 守備フェーズへの切り替え（カウントダウン開始）
+  // 守備フェーズへの切り替え（位置を入れ替えてカウントダウン開始）
   const startDefendPhase = () => {
     setGameState('countdown');
     setCountdownNum(3);
-    setMessage('🛡️ ロン君の攻撃が来ます！身構えてください！');
+    setMessage('🛡️ ロン君の攻撃ターン！位置が入れ替わります。身構えてください！');
     
-    // 初期配置：ロン君が上にいて、ボールも上にある。人間は下（手前）で守る
+    // 【位置反転】ロン君が下（キッカー）、人間（GK）が上（ゴール）
     setBallLeft('50%');
-    setBallTop('20%'); 
+    setBallTop('85%'); // ボールはロン君の足元（下）からスタート
     setKeeperLeft('50%');
-    setKeeperTop('85%');
+    setKeeperTop('30%'); // 人間は上のゴールラインに立つ
 
     // ロン君のシュートコースをあらかじめ裏で決定
     const courses = ['左', '中央', '右'];
@@ -108,25 +108,25 @@ export default function Page() {
         setCountdownNum(count);
       } else if (count === 0) {
         setCountdownNum('KICK!');
-        setMessage('🏃‍♂️ ロン君が蹴った！ピッチの下部（左・中央・右）をクリックしてシュートを止めて！');
+        setMessage('🏃‍♂️ ロン君が蹴った！上のゴール枠内（左・中央・右）をクリックしてシュートを止めて！');
         setGameState('defend_click');
         
-        // ボールが下（手前ゴール側）に向かって飛んでくる演出
+        // 【人間の攻撃と同じ動き】ボールが下から上に向かって飛んでいく！
         const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
         setBallLeft(posMap[ronChoice]);
-        setBallTop('80%');
+        setBallTop('30%'); // 上のゴールへ向かう
         
         clearInterval(timer);
       }
     }, 1000);
   };
 
-  // あなたの守備（クリックで止める）
+  // あなたの守備（上のゴールをクリックして止める）
   const handlePitchClickDefend = (course) => {
     if (gameState !== 'defend_click') return;
 
     const posMap = { '左': '25%', '中央': '50%', '右': '75%' };
-    // 人間（GK）を動かす
+    // 上にいる人間（GK）を動かす
     setKeeperLeft(posMap[course]);
 
     // ロン君のコースと一致していればセーブ成功
@@ -165,8 +165,8 @@ export default function Page() {
       setMessage(`🏆 5回戦すべて終了しました！ 結果：${finalWinner}（${playerScore} 対 ${newRonScore}）`);
     } else {
       setGameState('attack');
-      setMessage(`${resultText} ➔ 次は第 ${nextRound + 1}回戦です！ゴール内をクリックしてシュート！`);
-      // 次のターン用に初期位置へ戻す
+      setMessage(`${resultText} ➔ 次は第 ${nextRound + 1}回戦です！位置が元に戻ります。ゴール内をクリックしてシュート！`);
+      // 次のターン（あなたの攻撃）用に初期位置へ戻す
       setTimeout(() => {
         setBallLeft('50%');
         setBallTop('85%');
@@ -176,7 +176,7 @@ export default function Page() {
     }
   };
 
-  // 完全リreset
+  // 完全リセット
   const resetGame = () => {
     setPlayerScore(0);
     setRonScore(0);
@@ -191,6 +191,8 @@ export default function Page() {
     setKeeperLeft('50%');
     setKeeperTop('30%');
   };
+
+  const isDefendMode = (gameState === 'countdown' || gameState === 'defend_click');
 
   if (!isMounted) {
     return <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif' }}>読み込み中...</div>;
@@ -226,8 +228,8 @@ export default function Page() {
             <td style={{ padding: '8px', border: '1px solid #dddddd', fontWeight: 'bold', fontSize: '16px', backgroundColor: '#edf7ed', color: '#e53e3e' }}>{playerScore}</td>
           </tr>
           <tr>
-            <td style={{ padding: '8px', border: '1px solid #dddddd', fontWeight: 'bold', textAlign: 'left', backgroundColor: gameState === 'countdown' || gameState === 'defend_click' ? '#fff3e0' : 'transparent' }}>
-              ロン君 <span style={{ fontSize: '10px', color: '#dd6b20', display: 'block' }}>{(gameState === 'countdown' || gameState === 'defend_click') ? '🛡️ 防御せよ！' : '(守)'}</span>
+            <td style={{ padding: '8px', border: '1px solid #dddddd', fontWeight: 'bold', textAlign: 'left', backgroundColor: isDefendMode ? '#fff3e0' : 'transparent' }}>
+              ロン君 <span style={{ fontSize: '10px', color: '#dd6b20', display: 'block' }}>{isDefendMode ? '🛡️ 防御せよ！' : '(守)'}</span>
             </td>
             {ronHistory.map((h, i) => (
               <td key={i} style={{ padding: '8px', border: '1px solid #dddddd', fontSize: '14px', fontWeight: 'bold', color: h === '〇' ? '#388e3c' : '#e53e3e' }}>
@@ -242,9 +244,9 @@ export default function Page() {
       {/* 📢 状況アナウンス */}
       <div style={{ 
         padding: '12px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', marginBottom: '15px', border: '1px solid', textAlign: 'left',
-        background: gameState === 'attack' || gameState === 'attack_result' ? '#e3f2fd' : (gameState === 'countdown' || gameState === 'defend_click') ? '#fff3e0' : gameState === 'game_over' ? '#e8f5e9' : '#f7fafc',
-        color: gameState === 'attack' || gameState === 'attack_result' ? '#0d47a1' : (gameState === 'countdown' || gameState === 'defend_click') ? '#b78103' : gameState === 'game_over' ? '#1b5e20' : '#4a5568',
-        borderColor: gameState === 'attack' || gameState === 'attack_result' ? '#bbdefb' : (gameState === 'countdown' || gameState === 'defend_click') ? '#ffe0b2' : '#cbd5e0'
+        background: gameState === 'attack' || gameState === 'attack_result' ? '#e3f2fd' : isDefendMode ? '#fff3e0' : gameState === 'game_over' ? '#e8f5e9' : '#f7fafc',
+        color: gameState === 'attack' || gameState === 'attack_result' ? '#0d47a1' : isDefendMode ? '#b78103' : gameState === 'game_over' ? '#1b5e20' : '#4a5568',
+        borderColor: gameState === 'attack' || gameState === 'attack_result' ? '#bbdefb' : isDefendMode ? '#ffe0b2' : '#cbd5e0'
       }}>
         {message}
       </div>
@@ -258,7 +260,7 @@ export default function Page() {
         )}
         {gameState === 'attack_result' && (
           <button onClick={startDefendPhase} style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold', backgroundColor: '#ff9800', color: '#ffffff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-            🛡️ 守備フェーズへ進む (カウントダウン開始)
+            🛡️ 守備フェーズへ進む (位置交代＆カウントダウン)
           </button>
         )}
         {gameState === 'game_over' && (
@@ -273,7 +275,7 @@ export default function Page() {
         <div style={{
           width: '400px',
           height: '288px', 
-          background: (gameState === 'countdown' || gameState === 'defend_click') ? '#1b4d22' : '#4caf50', 
+          background: isDefendMode ? '#1b4d22' : '#4caf50', 
           position: 'relative',
           borderRadius: '8px',
           overflow: 'hidden',
@@ -283,12 +285,12 @@ export default function Page() {
           
           {/* ⏰ カウントダウンオーバーレイ表示 */}
           {gameState === 'countdown' && (
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#ffffff', fontSize: '60px', fontWeight: 'bold', fontStyle: 'italic' }}>
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#ffffff', fontSize: '60px', fontWeight: 'bold', fontStyle: 'italic' }}>
               {countdownNum}
             </div>
           )}
 
-          {/* ゴールポスト（白枠） */}
+          {/* ゴールポスト（常に上側に配置される白枠線） */}
           <div style={{
             position: 'absolute',
             top: '15px',
@@ -303,26 +305,26 @@ export default function Page() {
             borderRadius: '4px 4px 0 0',
             display: 'flex'
           }}>
-            {/* ⚔️ あなたの攻撃時用の安全な3分割クリックエリア */}
+            {/* ⚔️ あなたの攻撃時の3分割クリックエリア */}
             {gameState === 'attack' && (
               <>
                 <div onClick={() => handlePitchClickAttack('左')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
-                <div onClick={() => handlePitchClickAttack('中央')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent', borderLeft: '1px dashed rgba(255,255,255,0.05)', borderRight: '1px dashed rgba(255,255,255,0.05)' }} />
+                <div onClick={() => handlePitchClickAttack('中央')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
                 <div onClick={() => handlePitchClickAttack('右')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'transparent' }} />
+              </>
+            )}
+
+            {/* 🛡️ あなたの守備時の3分割クリックエリア（上にとんでくるボールをクリックで弾く！） */}
+            {gameState === 'defend_click' && (
+              <>
+                <div onClick={() => handlePitchClickDefend('左')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'rgba(255,255,255,0.05)', borderRight: '1px dashed rgba(255,255,255,0.2)' }} title="左を守る！" />
+                <div onClick={() => handlePitchClickDefend('中央')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'rgba(255,255,255,0.05)', borderRight: '1px dashed rgba(255,255,255,0.2)' }} title="中央を守る！" />
+                <div onClick={() => handlePitchClickDefend('右')} style={{ flex: 1, cursor: 'pointer', zIndex: 50, background: 'rgba(255,255,255,0.05)' }} title="右を守る！" />
               </>
             )}
           </div>
 
-          {/* 🛡️ あなたの守備時用の下部3分割クリックエリア（ボールを目で見てクリックで守る！） */}
-          {(gameState === 'defend_click') && (
-            <div style={{ position: 'absolute', bottom: '10px', left: '40px', width: '320px', height: '90px', display: 'flex', zIndex: 50 }}>
-              <div onClick={() => handlePitchClickDefend('左')} style={{ flex: 1, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', margin: '2px', border: '1px dashed rgba(255,255,255,0.3)' }} title="左を守る！" />
-              <div onClick={() => handlePitchClickDefend('中央')} style={{ flex: 1, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', margin: '2px', border: '1px dashed rgba(255,255,255,0.3)' }} title="中央を守る！" />
-              <div onClick={() => handlePitchClickDefend('右')} style={{ flex: 1, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', margin: '2px', border: '1px dashed rgba(255,255,255,0.3)' }} title="右を守る！" />
-            </div>
-          )}
-
-          {/* キーパー位置 (ロン君 🐈‍⬛ / あなた 🧍) */}
+          {/* 上側：キーパー（あなたの攻撃時は「ロン君 🐈‍⬛」、あなたの守備時は「あなた 🧍」） */}
           <div style={{
             position: 'absolute',
             left: keeperLeft,
@@ -333,7 +335,7 @@ export default function Page() {
             userSelect: 'none',
             transition: 'left 0.2s ease-out, top 0.2s ease-out'
           }}>
-            {(gameState === 'countdown' || gameState === 'defend_click') ? '🧍' : '🐈‍⬛'}
+            {isDefendMode ? '🧍' : '🐈‍⬛'}
           </div>
 
           {/* サッカーボール ⚽ */}
@@ -350,15 +352,10 @@ export default function Page() {
             ⚽
           </div>
 
-          {/* 反対側のキッカー役アイコン配置 */}
-          <div style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', fontSize: '26px', opacity: 0.3 }}>
-            {(gameState === 'countdown' || gameState === 'defend_click') ? '🐈‍⬛' : '🏃‍♂️'}
+          {/* 下側：キッカー（あなたの攻撃時は「あなた 🏃‍♂️」、あなたの守備時は「ロン君 🐈‍⬛」） */}
+          <div style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', fontSize: '38px', opacity: 0.9 }}>
+            {isDefendMode ? '🐈‍⬛' : '🏃‍♂️'}
           </div>
-          {(gameState === 'countdown' || gameState === 'defend_click') && (
-            <div style={{ position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)', fontSize: '26px', opacity: 0.8 }}>
-              🐈‍⬛
-            </div>
-          )}
         </div>
       </div>
 
