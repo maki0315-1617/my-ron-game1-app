@@ -1,140 +1,42 @@
-body {
-  margin: 0;
-  font-family: system-ui;
-  background: #e6f2ff;
-  color: #333;
+/* --- 背景テクスチャ (オプション: public/images/floor_texture.jpg があるとよりリアルになります) --- */
+.bg-floor_texture {
+  background-image: url('/images/floor_texture.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
-.app {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 24px;
+/* --- ゴキブリの動き (きもい揺れ) --- */
+@keyframes gokiWiggle {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  25% { transform: translate(-50%, -50%) rotate(-5deg) scale(1.0); }
+  50% { transform: translate(-50%, -50%) rotate(0deg) scale(1.05); } /* 少し膨らむ */
+  75% { transform: translate(-50%, -50%) rotate(5deg) scale(1.0); }
+  100% { transform: translate(-50%, -50%) rotate(0deg); }
 }
 
-.status-bar {
-  font-size: 1.6rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 10px;
+.cockroach-move {
+  animation: gokiWiggle 1s infinite ease-in-out;
+  /* ホバー時（タップ時）は拡大 */
+  transition: transform 0.1s ease-in-out;
 }
 
-.goal-area {
-  position: relative;
-  width: 100%;
-  height: 340px;
-  background: #4caf50;
-  border: 3px solid #2e7d32;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  overflow: hidden;
+.cockroach-move:hover {
+  transform: translate(-50%, -50%) scale(1.3) !important; /* 大きく強調 */
+  z-index: 20; /* 他のゴキブリより手前に表示 */
 }
 
-.goal-frame {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  width: 340px;
-  height: 160px;
-  transform: translateX(-50%);
-  border: 4px solid white;
-  border-radius: 4px;
+/* --- 爆発エフェクト --- */
+@keyframes explosionFadeOut {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } /* 拡大して消える */
 }
 
-.player {
-  position: absolute;
-  bottom: 10px;
-  left: 20%;
-  width: 90px;
-  height: 90px;
-  background: url("https://i.imgur.com/0ZfQFqE.png") no-repeat center/contain;
+.explosion-effect {
+  animation: explosionFadeOut 0.5s ease-out forwards;
+  pointer-events: none; /* クリック判定を透過 */
 }
 
-.ron {
-  position: absolute;
-  top: 80px;
-  left: 50%;
-  width: 110px;
-  height: 110px;
-  transform: translateX(-50%);
-  background: url("https://i.imgur.com/8pQeQeB.png") no-repeat center/contain;
-  transition: transform 0.5s ease-out;
-}
-
-.ball {
-  position: absolute;
-  bottom: 60px;
-  left: 25%;
-  width: 26px;
-  height: 26px;
-  background: white;
-  border-radius: 50%;
-  transition: transform 0.6s ease-out;
-}
-
-.goal-flash {
-  animation: flash 0.4s ease-out;
-}
-
-@keyframes flash {
-  0% {
-    background: rgba(255, 255, 0, 0.4);
-  }
-  100% {
-    background: transparent;
-  }
-}
-
-.save-shake {
-  animation: shake 0.3s ease-out;
-}
-
-@keyframes shake {
-  0% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-10px);
-  }
-  50% {
-    transform: translateX(10px);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-.countdown {
-  font-size: 1.4rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.ready-button {
-  display: block;
-  margin: 10px auto;
-  padding: 10px 20px;
-  font-size: 1.2rem;
-  background: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.ready-button:hover {
-  background: #2196f3;
-}
-
-.log ul {
-  list-style: none;
-  padding-left: 0;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.log li {
-  padding: 4px 0;
-  border-bottom: 1px solid #aaa;
-  font-size: 0.9rem;
+/* --- UIのフォントとシャドウ --- */
+.font-sans {
+  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
 }
