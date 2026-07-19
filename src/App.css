@@ -1,6 +1,6 @@
 /* --- 背景テクスチャ (オプション: public/images/floor_texture.jpg があるとよりリアルになります) --- */
 .bg-floor_texture {
-  background-image: url('/images/floor_texture.jpg');
+  background-image: url('./floor_texture.jpg');
   background-size: cover;
   background-position: center;
 }
