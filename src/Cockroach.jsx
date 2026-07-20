@@ -51,7 +51,7 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
     setIsExploding(true);
 
     setTimeout(() => {
-      onClick(id, type);
+      onClick(id);
     }, 400); // Match explosion effect duration
   };
 

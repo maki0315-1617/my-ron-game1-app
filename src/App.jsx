@@ -43,13 +43,9 @@ function App() {
     return () => clearInterval(spawnInterval);
   }, []);
 
-  // Handle clicking on a cockroach to destroy it and update score
-  const handleCockroachClick = (id, type) => {
-    let points = 1;
-    if (type === 'bad') points = 3;
-    if (type === 'special') points = 5;
-
-    setScore((prevScore) => prevScore + points);
+  // Handle clicking on a cockroach to destroy it and update score (+1 point for any type)
+  const handleCockroachClick = (id) => {
+    setScore((prevScore) => prevScore + 1);
     setCockroaches((prev) => prev.filter((c) => c.id !== id));
   };
 
@@ -57,13 +53,13 @@ function App() {
     <div className="game-container">
       {/* Score Display */}
       <div className="score-display">
-        Score: {score}
+        スコア: {score}
       </div>
 
       {/* Center content on screen (garbage pile) */}
       <div className="game-content">
-        <h1>PK Game (In Preparation)</h1>
-        <p>Placed garbage and cockroaches on top of the floor background.</p>
+        <h1>PK戦（準備中）</h1>
+        <p>床の背景の上にゴミとゴキブリを置いた。</p>
         
         <div className="garbage-display">
           <img 
