@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Cockroach from './Cockroach';
 import trashPileImage from './images/trash_pile.png'; 
+import blackCatImage from './images/black_cat.png';
 
 const cockroachTypes = ['normal', 'bad', 'special'];
 
 function App() {
-  const [gameState, setGameState] = useState('start'); // 'start', 'playing', 'clear'
+  const [gameState, setGameState] = useState('start');
   const [score, setScore] = useState(0);
   const [cockroaches, setCockroaches] = useState([]);
   const [startTime, setStartTime] = useState(null);
   const [clearTime, setClearTime] = useState(null);
   const [history, setHistory] = useState([]);
 
-  // Load history from localStorage on mount
   useEffect(() => {
     const savedHistory = localStorage.getItem('gameHistory');
     if (savedHistory) {
@@ -25,7 +25,6 @@ function App() {
     }
   }, []);
 
-  // Game loop for spawning cockroaches
   useEffect(() => {
     if (gameState !== 'playing') return;
 
@@ -54,14 +53,12 @@ function App() {
     return () => clearInterval(spawnInterval);
   }, [gameState]);
 
-  // Handle score update and check for clear condition
   const handleCockroachClick = (id) => {
     if (gameState !== 'playing') return;
 
     setScore((prevScore) => {
       const nextScore = prevScore + 1;
       if (nextScore >= 10) {
-        // Game Clear
         const endTime = Date.now();
         const durationSeconds = ((endTime - startTime) / 1000).toFixed(2);
         
@@ -103,8 +100,10 @@ function App() {
     <div className="game-container">
       {gameState === 'start' && (
         <div className="start-screen">
-          <h1>PK戦ゲーム</h1>
-          <p>ゴキブリを倒してスコア10を目指そう！</p>
+          <div className="cat-header">
+            <img src={blackCatImage} alt="Black Cat" className="cat-image" />
+          </div>
+          <h1>ロン君のスピードゴキ退治</h1>
           <button className="start-button" onClick={startGame}>ゲームスタート</button>
           
           <div className="history-section">
@@ -131,8 +130,9 @@ function App() {
           </div>
 
           <div className="game-content">
-            <h1>PK戦（準備中）</h1>
-            <p>床の背景の上にゴミとゴキブリを言いました。</p>
+            <div className="cat-header">
+              <img src={blackCatImage} alt="Black Cat" className="cat-image" />
+            </div>
             
             <div className="garbage-display">
               <img 
@@ -159,8 +159,10 @@ function App() {
 
       {gameState === 'clear' && (
         <div className="clear-screen">
+          <div className="cat-header">
+            <img src={blackCatImage} alt="Black Cat" className="cat-image" />
+          </div>
           <h1>ゲームクリア！</h1>
-          <p>おめでとうございます！スコアが10に到達しました。</p>
           <p>クリアタイム: <strong>{clearTime}</strong> 秒</p>
           <button className="start-button" onClick={startGame}>もう一度プレイ</button>
           <button className="start-button" style={{ marginTop: '10px', backgroundColor: '#555' }} onClick={backToTitle}>タイトルに戻る</button>
