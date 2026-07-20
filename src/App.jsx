@@ -7,7 +7,7 @@ import blackCatImage from './images/black_cat.png';
 const cockroachTypes = ['normal', 'bad', 'special'];
 
 function App() {
-  const [gameState, setGameState] = useState('start');
+  const [gameState, setGameState] = useState('start'); // 'start', 'playing', 'clear', 'gameover'
   const [score, setScore] = useState(0);
   const [cockroaches, setCockroaches] = useState([]);
   const [startTime, setStartTime] = useState(null);
@@ -25,8 +25,15 @@ function App() {
     }
   }, []);
 
+  // 1-minute timer and cockroach spawning loop
   useEffect(() => {
     if (gameState !== 'playing') return;
+
+    const timer = setTimeout(() => {
+      // 1 minute passed -> Game Over
+      setGameState('gameover');
+      setCockroaches([]);
+    }, 60000);
 
     const spawnInterval = setInterval(() => {
       const id = Date.now();
@@ -50,7 +57,10 @@ function App() {
 
     }, 2000);
 
-    return () => clearInterval(spawnInterval);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(spawnInterval);
+    };
   }, [gameState]);
 
   const handleCockroachClick = (id) => {
@@ -67,7 +77,8 @@ function App() {
         
         const record = {
           dateTime: dateTimeString,
-          seconds: durationSeconds
+          seconds: durationSeconds,
+          isGameOver: false
         };
 
         const updatedHistory = [record, ...history].slice(0, 3);
@@ -113,8 +124,8 @@ function App() {
             ) : (
               <ul>
                 {history.map((item, index) => (
-                  <li key={index}>
-                    {item.dateTime} - タイム: {item.seconds}秒
+                  <li key={index} style={{ color: item.isGameOver ? 'red' : 'inherit' }}>
+                    {item.dateTime} - {item.isGameOver ? 'ゲームオーバー' : `タイム: ${item.seconds}秒`}
                   </li>
                 ))}
               </ul>
@@ -164,6 +175,18 @@ function App() {
           </div>
           <h1>ゲームクリア！</h1>
           <p>クリアタイム: <strong>{clearTime}</strong> 秒</p>
+          <button className="start-button" onClick={startGame}>もう一度プレイ</button>
+          <button className="start-button" style={{ marginTop: '10px', backgroundColor: '#555' }} onClick={backToTitle}>タイトルに戻る</button>
+        </div>
+      )}
+
+      {gameState === 'gameover' && (
+        <div className="clear-screen">
+          <div className="cat-header">
+            <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
+          </div>
+          <h1 style={{ color: 'red' }}>ゲームオーバー</h1>
+          <p>1分が経過しました...</p>
           <button className="start-button" onClick={startGame}>もう一度プレイ</button>
           <button className="start-button" style={{ marginTop: '10px', backgroundColor: '#555' }} onClick={backToTitle}>タイトルに戻る</button>
         </div>
