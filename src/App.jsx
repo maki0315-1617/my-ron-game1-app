@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Cockroach from './Cockroach';
-// フォルダ名をアルファベット（images）に変更
+// フォルダ名・ファイル名が英語である前提のパス
 import trashPileImage from './images/trash_pile.png'; 
 
 function App() {
@@ -18,8 +18,8 @@ function App() {
         id,
         fromTop,
         x: Math.random() * 80 + 10, // 画面横方向の出現位置（10%〜90%）
-        // スピードを10倍に維持（極めて短い移動時間）
-        duration: fromTop ? Math.random() * 0.05 + 0.1 : Math.random() * 0.05 + 0.1,
+        // スピードを1/2にするため、時間を2倍に設定（0.2秒〜0.3秒程度）
+        duration: fromTop ? Math.random() * 0.1 + 0.2 : Math.random() * 0.1 + 0.2,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
@@ -27,9 +27,9 @@ function App() {
       // 画面外へ移動した後にメモリから削除
       setTimeout(() => {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
-      }, (newCockroach.duration + 0.05) * 1000);
+      }, (newCockroach.duration + 0.1) * 1000);
 
-    }, 300);
+    }, 400);
 
     return () => clearInterval(spawnInterval);
   }, []);

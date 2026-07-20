@@ -1,6 +1,6 @@
 import React from 'react';
 import './Cockroach.css';
-// フォルダ名をアルファベット（images）に変更
+// フォルダ名・ファイル名が英語である前提のパス
 import cockroachImg from './images/cockroach.png';
 
 const Cockroach = ({ fromTop, x, duration }) => {
