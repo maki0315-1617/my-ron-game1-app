@@ -34,7 +34,7 @@
     100% { transform: translateX(calc(-100vw - 100px)); }
   }
   
-  /* Assigning Animations (using new clearer names) */
+  /* Assigning Animations */
   .moveDown {
     animation: moveDown linear forwards;
   }

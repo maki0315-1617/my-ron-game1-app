@@ -3,8 +3,8 @@ import './App.css';
 import Cockroach from './Cockroach';
 import trashPileImage from './images/trash_pile.png'; 
 
-// Array of available cockroach image types
-const cockroachTypes = ['normal', 'bad'];
+// Array of available cockroach image types including special
+const cockroachTypes = ['normal', 'bad', 'special'];
 
 function App() {
   // Manage the list of active cockroaches in state

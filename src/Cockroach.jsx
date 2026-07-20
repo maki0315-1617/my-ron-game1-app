@@ -1,9 +1,10 @@
 import React from 'react';
 import './Cockroach.css';
 
-// Import both cockroach images
+// Import all cockroach images including special
 import cockroachImage from './images/cockroach.png';
 import cockroachBadImage from './images/cockroach_bad.png';
+import cockroachSpecialImage from './images/cockroach_special.png';
 
 function Cockroach({ direction, type, position, duration }) {
   // Determine style and animation class based on direction
@@ -36,8 +37,16 @@ function Cockroach({ direction, type, position, duration }) {
   }
 
   // Select the image source based on the type prop
-  const imageSrc = type === 'bad' ? cockroachBadImage : cockroachImage;
-  const altText = type === 'bad' ? 'Bad Cockroach' : 'Cockroach';
+  let imageSrc = cockroachImage;
+  let altText = 'Cockroach';
+
+  if (type === 'bad') {
+    imageSrc = cockroachBadImage;
+    altText = 'Bad Cockroach';
+  } else if (type === 'special') {
+    imageSrc = cockroachSpecialImage;
+    altText = 'Special Cockroach';
+  }
 
   return (
     <div className={`cockroach-wrapper ${animationClass}`} style={wrapperStyle}>

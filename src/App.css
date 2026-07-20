@@ -14,7 +14,7 @@
 .game-content {
   text-align: center;
   color: white;
-  z-index: 10;
+  z-index: 10; /* Ensure content is above cockroaches */
 }
 
 .garbage-display {
