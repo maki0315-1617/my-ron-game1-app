@@ -101,9 +101,9 @@ function App() {
       {gameState === 'start' && (
         <div className="start-screen">
           <div className="cat-header">
-            <img src={blackCatImage} alt="Black Cat" className="cat-image" />
+            <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
           </div>
-          <h1>ロン君のスピードゴキ退治</h1>
+          <h1>ロン君のゴキ退治</h1>
           <button className="start-button" onClick={startGame}>ゲームスタート</button>
           
           <div className="history-section">
@@ -131,7 +131,7 @@ function App() {
 
           <div className="game-content">
             <div className="cat-header">
-              <img src={blackCatImage} alt="Black Cat" className="cat-image" />
+              <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
             </div>
             
             <div className="garbage-display">
@@ -160,7 +160,7 @@ function App() {
       {gameState === 'clear' && (
         <div className="clear-screen">
           <div className="cat-header">
-            <img src={blackCatImage} alt="Black Cat" className="cat-image" />
+            <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
           </div>
           <h1>ゲームクリア！</h1>
           <p>クリアタイム: <strong>{clearTime}</strong> 秒</p>
