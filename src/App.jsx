@@ -27,8 +27,8 @@ function App() {
         direction,
         type,
         position: Math.random() * 80 + 10, 
-        // Slower speed adjusted (animation duration between 5.0s and 8.0s)
-        duration: Math.random() * 3.0 + 5.0,
+        // Speed halved (animation duration between 10.0s and 16.0s)
+        duration: Math.random() * 6.0 + 10.0,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
@@ -36,9 +36,9 @@ function App() {
       // Remove from memory after moving off-screen
       setTimeout(() => {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
-      }, (newCockroach.duration + 1.0) * 1000);
+      }, (newCockroach.duration + 2.0) * 1000);
 
-    }, 1200);
+    }, 2000);
 
     return () => clearInterval(spawnInterval);
   }, []);
