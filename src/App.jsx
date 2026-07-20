@@ -7,7 +7,7 @@ import blackCatImage from './images/black_cat.png';
 const cockroachTypes = ['normal', 'bad', 'special'];
 
 function App() {
-  const [gameState, setGameState] = useState('start'); // 'start', 'playing', 'clear', 'gameover'
+  const [gameState, setGameState] = useState('start');
   const [score, setScore] = useState(0);
   const [cockroaches, setCockroaches] = useState([]);
   const [startTime, setStartTime] = useState(null);
@@ -25,12 +25,10 @@ function App() {
     }
   }, []);
 
-  // 1-minute timer and cockroach spawning loop
   useEffect(() => {
     if (gameState !== 'playing') return;
 
     const timer = setTimeout(() => {
-      // 1 minute passed -> Game Over
       const now = new Date();
       const dateTimeString = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
       
@@ -76,11 +74,12 @@ function App() {
     };
   }, [gameState, history]);
 
+  // 引数で id と type を確実に受け取るスコア処理
   const handleCockroachClick = (id, type) => {
     if (gameState !== 'playing') return;
 
     setScore((prevScore) => {
-      let points = 1;
+      let points = 1; // normal
       if (type === 'bad') points = -3;
       if (type === 'special') points = 2;
 

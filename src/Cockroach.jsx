@@ -51,7 +51,8 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
     setIsExploding(true);
 
     setTimeout(() => {
-      onClick(id);
+      // id と type の両方を親コンポーネントへ確実に渡す
+      onClick(id, type);
     }, 400);
   };
 
