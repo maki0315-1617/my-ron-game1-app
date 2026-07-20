@@ -17,8 +17,8 @@ function App() {
         id,
         fromTop,
         x: Math.random() * 80 + 10, // 画面横方向の出現位置（10%〜90%）
-        // スピードをさらに極端に落とすため、アニメーション時間をかなり長く設定（例：10.0秒〜15.0秒程度）
-        duration: fromTop ? Math.random() * 5.0 + 10.0 : Math.random() * 5.0 + 10.0,
+        // スピードを極限まで落とし、非常にゆっくり移動するように設定（例：20.0秒〜30.0秒程度）
+        duration: fromTop ? Math.random() * 10.0 + 20.0 : Math.random() * 10.0 + 20.0,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
@@ -26,9 +26,9 @@ function App() {
       // 画面外へ移動した後にメモリから削除
       setTimeout(() => {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
-      }, (newCockroach.duration + 0.5) * 1000);
+      }, (newCockroach.duration + 1.0) * 1000);
 
-    }, 2000);
+    }, 3000);
 
     return () => clearInterval(spawnInterval);
   }, []);
@@ -43,7 +43,7 @@ function App() {
         <div className="garbage-display">
           <img 
             src={trashPileImage} 
-            alt="生ごみ" 
+            alt="Trash Pile" 
             className="garbage-image" 
           />
         </div>
@@ -51,7 +51,7 @@ function App() {
 
       {/* 画面全体の上下端を移動するゴキブリの描画 */}
       {cockroaches.map((roach) => (
-        <Cockroach 
+        <Cockoach 
           key={roach.id} 
           fromTop={roach.fromTop} 
           x={roach.x} 
