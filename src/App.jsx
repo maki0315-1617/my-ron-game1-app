@@ -4,11 +4,11 @@ import Cockoach from './Cockroach';
 import trashPileImage from './images/trash_pile.png'; 
 
 function App() {
-  // ゴキブリのリストを管理するステート
+  // Manage the list of cockroaches in state
   const [cockroaches, setCockroaches] = useState([]);
 
   useEffect(() => {
-    // 一定間隔でゴキブリを生成するタイマー
+    // Timer to spawn cockroaches at regular intervals
     const spawnInterval = setInterval(() => {
       const id = Date.now();
       const fromTop = Math.random() > 0.5;
@@ -16,29 +16,29 @@ function App() {
       const newCockroach = {
         id,
         fromTop,
-        x: Math.random() * 80 + 10, // 画面横方向の出現位置（10%〜90%）
-        // スピードを極限まで落とし、非常にゆっくり移動するように設定（例：20.0秒〜30.0秒程度）
-        duration: fromTop ? Math.random() * 10.0 + 20.0 : Math.random() * 10.0 + 20.0,
+        x: Math.random() * 80 + 10, // Horizontal spawn position on screen (10% to 90%)
+        // Adjusted to a moderate intermediate speed (animation duration between 3.0s and 6.0s)
+        duration: fromTop ? Math.random() * 3.0 + 3.0 : Math.random() * 3.0 + 3.0,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
 
-      // 画面外へ移動した後にメモリから削除
+      // Remove from memory after moving off-screen
       setTimeout(() => {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
-      }, (newCockroach.duration + 1.0) * 1000);
+      }, (newCockroach.duration + 0.5) * 1000);
 
-    }, 3000);
+    }, 1500);
 
     return () => clearInterval(spawnInterval);
   }, []);
 
   return (
     <div className="game-container">
-      {/* 画面中央のコンテンツ（生ごみなど） */}
+      {/* Center content on screen (such as garbage) */}
       <div className="game-content">
-        <h1>PKゲーム（準備中）</h1>
-        <p>床の背景の上に、生ごみとゴキブリを配置しました。</p>
+        <h1>PK Game (In Preparation)</h1>
+        <p>Placed garbage and cockroaches on top of the floor background.</p>
         
         <div className="garbage-display">
           <img 
@@ -49,7 +49,7 @@ function App() {
         </div>
       </div>
 
-      {/* 画面全体の上下端を移動するゴキブリの描画 */}
+      {/* Render cockroaches moving across the top/bottom edges of the screen */}
       {cockroaches.map((roach) => (
         <Cockoach 
           key={roach.id} 
