@@ -15,17 +15,17 @@ function App() {
         id,
         fromTop,
         x: Math.random() * 80 + 10,
-        // スピードを5倍にするため時間を短縮
-        duration: fromTop ? Math.random() * 0.4 + 0.4 : Math.random() * 0.5 + 0.5,
+        // スピードをさらに10倍にするため、時間を極端に短縮 (0.1秒〜0.15秒程度)
+        duration: fromTop ? Math.random() * 0.05 + 0.1 : Math.random() * 0.05 + 0.1,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
 
       setTimeout(() => {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
-      }, (newCockroach.duration + 0.2) * 1000);
+      }, (newCockroach.duration + 0.05) * 1000); // 消去のタイミングも調整
 
-    }, 1000);
+    }, 500); // 生成頻度も上げる
 
     return () => clearInterval(spawnInterval);
   }, []);
