@@ -1,63 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Cockroach from './Cockroach';
-// 英語フォルダ名 (images) からゴミ画像と背景画像を読み込む
-import trashPileImage from './images/trash_pile.png';
-import floorTexture from './images/floor_texture.jpg';
+import trashPileImage from './images/trash_pile.png'; 
+
+// Array of available cockroach image types
+const cockroachTypes = ['normal', 'bad', 'special'];
 
 function App() {
-  // ゴキブリのリストを管理するステート
-  const [cockroaches, setCockroaches] = useState([]);
-  // スコアを管理するステート
   const [score, setScore] = useState(0);
+  const [cockroaches, setCockroaches] = useState([]);
 
   useEffect(() => {
-    // 一定間隔でゴキブリを生成するタイマー
+    // Timer to spawn cockroaches at regular intervals
     const spawnInterval = setInterval(() => {
       const id = Date.now();
-      const fromTop = Math.random() > 0.5;
+      
+      // Randomly choose from 4 directions: top, bottom, left, right
+      const directions = ['top', 'bottom', 'left', 'right'];
+      const direction = directions[Math.floor(Math.random() * directions.length)];
+
+      // Randomly choose a cockroach type
+      const type = cockroachTypes[Math.floor(Math.random() * cockroachTypes.length)];
 
       const newCockroach = {
         id,
-        fromTop,
-        x: Math.random() * 80 + 10, // 画面横方向の出現位置（10%〜90%）
-        // スピードを半分に落とした移動時間（0.4秒〜0.6秒程度）
-        duration: fromTop ? Math.random() * 0.2 + 0.4 : Math.random() * 0.2 + 0.4,
+        direction,
+        type,
+        position: Math.random() * 80 + 10, 
+        // Moderate intermediate speed (animation duration between 3.0s and 6.0s)
+        duration: Math.random() * 3.0 + 3.0,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
 
-      // 画面外へ移動した後にメモリから削除
+      // Remove from memory after moving off-screen
       setTimeout(() => {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
-      }, (newCockroach.duration + 0.2) * 1000);
+      }, (newCockroach.duration + 1.0) * 1000);
 
-    }, 600);
+    }, 1000);
 
     return () => clearInterval(spawnInterval);
   }, []);
 
-  // ゴキブリをクリック/タップしたときのスコア加算ハンドラー
-  const handleCockroachClick = (id) => {
-    setScore((prevScore) => prevScore + 100); // 1匹につき100点加算
-    // クリックされたゴキブリを即座にリストから削除
+  // Handle clicking on a cockroach to destroy it and update score
+  const handleCockroachClick = (id, type) => {
+    let points = 1;
+    if (type === 'bad') points = 3;
+    if (type === 'special') points = 5;
+
+    setScore((prevScore) => prevScore + points);
     setCockroaches((prev) => prev.filter((c) => c.id !== id));
   };
 
   return (
-    <div 
-      className="game-container"
-      style={{ backgroundImage: `url(${floorTexture})` }}
-    >
-      {/* スコアボードの表示 */}
-      <div className="score-board">
-        SCORE: {score}
+    <div className="game-container">
+      {/* Score Display */}
+      <div className="score-display">
+        Score: {score}
       </div>
 
-      {/* 画面中央のコンテンツ（生ごみなど） */}
+      {/* Center content on screen (garbage pile) */}
       <div className="game-content">
-        <h1>PKゲーム（準備中）</h1>
-        <p>床の背景の上に、生ごみとゴキブリを配置しました。</p>
+        <h1>PK Game (In Preparation)</h1>
+        <p>Placed garbage and cockroaches on top of the floor background.</p>
         
         <div className="garbage-display">
           <img 
@@ -68,13 +74,14 @@ function App() {
         </div>
       </div>
 
-      {/* 画面全体の上下端を移動するゴキブリの描画 */}
+      {/* Render all active cockroaches moving across the screen edges */}
       {cockroaches.map((roach) => (
         <Cockroach 
           key={roach.id} 
           id={roach.id}
-          fromTop={roach.fromTop} 
-          x={roach.x} 
+          direction={roach.direction} 
+          type={roach.type}
+          position={roach.position} 
           duration={roach.duration} 
           onClick={handleCockroachClick}
         />

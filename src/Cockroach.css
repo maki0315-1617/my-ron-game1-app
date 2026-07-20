@@ -1,60 +1,80 @@
-/* ゴキブリの基本スタイル（1/30のサイズに縮小、クリック可能に設定） */
-.cockroach {
+/* Cockroach Element Base Styling */
+.cockroach-wrapper {
     position: absolute;
-    width: 35px; 
-    height: auto;
-    cursor: pointer; /* クリックできることが分かるようにカーソルを変更 */
+    width: 40px;
+    height: 40px;
     z-index: 5;
-    
-    animation-timing-function: linear;
-    animation-fill-mode: forwards;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   
-  .cockroach.from-top {
-    animation-name: moveFromTopToBottomMax;
-  }
-  
-  .cockroach.from-bottom {
-    animation-name: moveFromBottomToTopMax;
-  }
-  
-  .cockroach img {
+  .cockroach-image {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: contain;
   }
   
-  /* 上端から下端まで画面全体を縦断するアニメーション */
-  @keyframes moveFromTopToBottomMax {
+  /* Keyframe Animations for 4 Directions */
+  @keyframes moveDown {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(calc(100vh + 100px)); }
+  }
+  
+  @keyframes moveUp {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(calc(-100vh - 100px)); }
+  }
+  
+  @keyframes moveRight {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(100vw + 100px)); }
+  }
+  
+  @keyframes moveLeft {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-100vw - 100px)); }
+  }
+  
+  /* Assigning Animations */
+  .moveDown {
+    animation: moveDown linear forwards;
+  }
+  
+  .moveUp {
+    animation: moveUp linear forwards;
+  }
+  
+  .moveRight {
+    animation: moveRight linear forwards;
+  }
+  
+  .moveLeft {
+    animation: moveLeft linear forwards;
+  }
+  
+  /* Explosion Effect on Click */
+  .exploding {
+    animation: none !important;
+    transform: scale(1.5);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .explosion-effect {
+    position: absolute;
+    font-size: 30px;
+    animation: explodeAnim 0.4s ease-out forwards;
+    pointer-events: none;
+  }
+  
+  @keyframes explodeAnim {
     0% {
-      top: -10vh;
-      opacity: 0;
-    }
-    5% {
-      opacity: 1;
-    }
-    95% {
+      transform: scale(0.5);
       opacity: 1;
     }
     100% {
-      top: 110vh;
-      opacity: 0;
-    }
-  }
-  
-  /* 下端から上端まで画面全体を縦断するアニメーション */
-  @keyframes moveFromBottomToTopMax {
-    0% {
-      top: 110vh;
-      opacity: 0;
-    }
-    5% {
-      opacity: 1;
-    }
-    95% {
-      opacity: 1;
-    }
-    100% {
-      top: -10vh;
+      transform: scale(2);
       opacity: 0;
     }
   }
