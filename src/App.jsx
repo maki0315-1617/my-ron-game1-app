@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Cockoach from './Cockroach';
-import trashPileImage from './画像/trash_pile.png'; 
+import trashPileImage from './images/trash_pile.png'; 
 
 function App() {
   // ゴキブリのリストを管理するステート
