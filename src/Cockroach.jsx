@@ -52,7 +52,7 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
 
     setTimeout(() => {
       onClick(id);
-    }, 400); // Match explosion effect duration
+    }, 400);
   };
 
   return (
