@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Cockroach from './Cockroach';
-// フォルダ名・ファイル名が英語である前提のパス
-import trashPileImage from './images/trash_pile.png'; 
+// 画像フォルダから生ごみ画像を読み込む
+import trashPileImage from './画像/trash_pile.png'; 
 
 function App() {
   // ゴキブリのリストを管理するステート
@@ -18,8 +18,8 @@ function App() {
         id,
         fromTop,
         x: Math.random() * 80 + 10, // 画面横方向の出現位置（10%〜90%）
-        // スピードを1/2にするため、時間を2倍に設定（0.2秒〜0.3秒程度）
-        duration: fromTop ? Math.random() * 0.1 + 0.2 : Math.random() * 0.1 + 0.2,
+        // スピードをさらに半分にするため、アニメーション時間を2倍に設定（0.4秒〜0.6秒程度）
+        duration: fromTop ? Math.random() * 0.2 + 0.4 : Math.random() * 0.2 + 0.4,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
@@ -27,9 +27,9 @@ function App() {
       // 画面外へ移動した後にメモリから削除
       setTimeout(() => {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
-      }, (newCockroach.duration + 0.1) * 1000);
+      }, (newCockroach.duration + 0.2) * 1000);
 
-    }, 400);
+    }, 600);
 
     return () => clearInterval(spawnInterval);
   }, []);
