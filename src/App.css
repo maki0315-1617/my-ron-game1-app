@@ -5,27 +5,27 @@ body, html {
   height: 100%;
   overflow: hidden;
   font-family: sans-serif;
-  background-color: #1b5e20; /* 背景色を少し濃い緑に */
+  background-color: #1b5e20;
 }
 
 .game-container {
   width: 100vw;
   height: 100vh;
-  position: relative; /* ゴキブリ配置の基準点 */
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .game-content {
-  background-color: rgba(0, 0, 0, 0.8); /* さらに濃く */
+  background-color: rgba(0, 0, 0, 0.8);
   padding: 2rem;
   border-radius: 12px;
   text-align: center;
   color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
   max-width: 80%;
-  z-index: 10; /* ゴミをゴキブリより手前に */
+  z-index: 10;
 }
 
 .game-content h1 {
@@ -38,7 +38,6 @@ body, html {
   font-size: 1rem;
 }
 
-/* 生ごみ表示エリアのスタイル */
 .garbage-display {
   display: flex;
   justify-content: center;
@@ -46,7 +45,7 @@ body, html {
 }
 
 .garbage-image {
-  max-width: 150px; /* 少し小さく調整 */
+  max-width: 150px;
   height: auto;
   border: 4px solid #fff;
   border-radius: 8px;

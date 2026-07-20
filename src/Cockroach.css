@@ -1,36 +1,32 @@
-Cockroach.cockroach {
+.cockroach {
     position: absolute;
-    width: 50px; /* ゴキブリのサイズ */
+    /* 元のサイズ（約1500px等と仮定した場合の1/30、または基準となる標準幅の1/30に設定） */
+    width: 25px; 
     height: auto;
-    pointer-events: none; /* クリック判定を無効化 */
-    z-index: 5; /* 生ごみより奥に配置 */
+    pointer-events: none;
+    z-index: 5;
     
-    /* アニメーションの適用 */
     animation-name: moveVertical;
     animation-timing-function: linear;
-    animation-fill-mode: forwards; /* 終了時の状態を維持（消える） */
+    animation-fill-mode: forwards;
     
-    /* 初期透明度 */
     opacity: 0.9;
   }
   
   .cockroach img {
     width: 100%;
     height: auto;
-    /* 必要であれば画像を回転させる（画像が横向きの場合など） */
-    /* transform: rotate(90deg); */ 
   }
   
-  /* 動きの定義 */
   @keyframes moveVertical {
     0% {
       transform: translate(-50%, var(--start-y)) scale(1);
     }
     80% {
-      opacity: 0.9; /* 画面内では表示 */
+      opacity: 0.9;
     }
     100% {
-      transform: translate(-50%, var(--end-y)) scale(1.2); /* 通り過ぎる時に少し大きく */
-      opacity: 0; /* 画面外で消える */
+      transform: translate(-50%, var(--end-y)) scale(1.1);
+      opacity: 0;
     }
   }
