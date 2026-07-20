@@ -27,8 +27,8 @@ function App() {
         direction,
         type,
         position: Math.random() * 80 + 10, 
-        // Moderate intermediate speed (animation duration between 3.0s and 6.0s)
-        duration: Math.random() * 3.0 + 3.0,
+        // Slower speed adjusted (animation duration between 5.0s and 8.0s)
+        duration: Math.random() * 3.0 + 5.0,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
@@ -38,12 +38,12 @@ function App() {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
       }, (newCockroach.duration + 1.0) * 1000);
 
-    }, 1000);
+    }, 1200);
 
     return () => clearInterval(spawnInterval);
   }, []);
 
-  // Handle clicking on a cockroach to destroy it and update score (+1 point for any type)
+  // Handle clicking on a cockroach to destroy it and update score (+1 point)
   const handleCockroachClick = (id) => {
     setScore((prevScore) => prevScore + 1);
     setCockroaches((prev) => prev.filter((c) => c.id !== id));
@@ -59,7 +59,7 @@ function App() {
       {/* Center content on screen (garbage pile) */}
       <div className="game-content">
         <h1>PK戦（準備中）</h1>
-        <p>床の背景の上にゴミとゴキブリを置いた。</p>
+        <p>床の背景の上にゴミとゴキブリを言いました。</p>
         
         <div className="garbage-display">
           <img 
