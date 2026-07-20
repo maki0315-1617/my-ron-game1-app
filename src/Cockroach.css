@@ -1,6 +1,7 @@
+/* ゴキブリの基本スタイル（1/30のサイズに縮小） */
 .cockroach {
     position: absolute;
-    width: 25px; /* サイズ 1/30 */
+    width: 25px; 
     height: auto;
     pointer-events: none;
     z-index: 5;
@@ -22,7 +23,7 @@
     height: auto;
   }
   
-  /* 上端から下端まで画面全体を縦断 */
+  /* 上端から下端まで画面全体を縦断するアニメーション */
   @keyframes moveFromTopToBottomMax {
     0% {
       top: -10vh;
@@ -40,7 +41,7 @@
     }
   }
   
-  /* 下端から上端まで画面全体を縦断 */
+  /* 下端から上端まで画面全体を縦断するアニメーション */
   @keyframes moveFromBottomToTopMax {
     0% {
       top: 110vh;

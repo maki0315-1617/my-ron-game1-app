@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Cockroach from './Cockroach';
-import trashPileImage from './画像/trash_pile.png'; 
+// フォルダ名をアルファベット（images）に変更
+import trashPileImage from './images/trash_pile.png'; 
 
 function App() {
+  // ゴキブリのリストを管理するステート
   const [cockroaches, setCockroaches] = useState([]);
 
   useEffect(() => {
+    // 一定間隔でゴキブリを生成するタイマー
     const spawnInterval = setInterval(() => {
       const id = Date.now();
       const fromTop = Math.random() > 0.5;
@@ -14,13 +17,14 @@ function App() {
       const newCockroach = {
         id,
         fromTop,
-        x: Math.random() * 80 + 10,
-        // 10倍の高速スピードを維持
+        x: Math.random() * 80 + 10, // 画面横方向の出現位置（10%〜90%）
+        // スピードを10倍に維持（極めて短い移動時間）
         duration: fromTop ? Math.random() * 0.05 + 0.1 : Math.random() * 0.05 + 0.1,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
 
+      // 画面外へ移動した後にメモリから削除
       setTimeout(() => {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
       }, (newCockroach.duration + 0.05) * 1000);
@@ -32,7 +36,7 @@ function App() {
 
   return (
     <div className="game-container">
-      {/* 画面全体の上下幅を最大化するため、コンテンツコンテナを配置 */}
+      {/* 画面中央のコンテンツ（生ごみなど） */}
       <div className="game-content">
         <h1>PKゲーム（準備中）</h1>
         <p>床の背景の上に、生ごみとゴキブリを配置しました。</p>
@@ -46,7 +50,7 @@ function App() {
         </div>
       </div>
 
-      {/* ゴキブリは画面全体のコンテナ直下に配置し、端から端まで移動させる */}
+      {/* 画面全体の上下端を移動するゴキブリの描画 */}
       {cockroaches.map((roach) => (
         <Cockroach 
           key={roach.id} 

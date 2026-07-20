@@ -1,8 +1,10 @@
 import React from 'react';
 import './Cockroach.css';
-import cockroachImg from './画像/cockroach.png';
+// フォルダ名をアルファベット（images）に変更
+import cockroachImg from './images/cockroach.png';
 
 const Cockroach = ({ fromTop, x, duration }) => {
+  // インラインスタイルで横位置とアニメーション速度を設定
   const style = {
     left: `${x}%`,
     animationDuration: `${duration}s`,
