@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 // GitHubのリポジトリにある「画像」フォルダから読み込む想定です
-import rawGarbageImage from './images/raw_garbage.png'; 
+import rawGarbageImage from './images/trash_pile.png'; 
 
 function App() {
   return (
