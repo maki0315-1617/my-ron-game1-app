@@ -50,12 +50,8 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
     e.stopPropagation();
     if (isExploding) return;
 
-    // クリックされた位置のコンテナ内での相対座標を正しく取得
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    setClickPos({ x, y });
+    // 画面全体に対するクリック位置（clientX / clientY）をそのまま保存
+    setClickPos({ x: e.clientX, y: e.clientY });
     setIsExploding(true);
 
     setTimeout(() => {
@@ -64,26 +60,30 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
   };
 
   return (
-    <div 
-      className={`cockroach-wrapper ${animationClass} ${isExploding ? 'exploding' : ''}`} 
-      style={wrapperStyle}
-      onClick={handleClick}
-    >
-      <img 
-        src={imageSrc} 
-        alt={altText} 
-        className="cockroach-image" 
-        style={imageStyle} 
-      />
+    <>
+      <div 
+        className={`cockroach-wrapper ${animationClass} ${isExploding ? 'exploding' : ''}`} 
+        style={wrapperStyle}
+        onClick={handleClick}
+      >
+        <img 
+          src={imageSrc} 
+          alt={altText} 
+          className="cockroach-image" 
+          style={imageStyle} 
+        />
+      </div>
+
+      {/* エフェクトをコンテナの外に固定配置し、ズレを完全に排除 */}
       {isExploding && (
         <div 
-          className="explosion-effect" 
+          className="global-explosion-effect" 
           style={{ left: `${clickPos.x}px`, top: `${clickPos.y}px` }}
         >
           💥
         </div>
       )}
-    </div>
+    </>
   );
 }
 
