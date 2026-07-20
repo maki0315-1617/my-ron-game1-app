@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import Cockroach from './Cockroach';
-// 画像フォルダから生ごみ画像を読み込む
+import Cockoach from './Cockroach';
 import trashPileImage from './画像/trash_pile.png'; 
 
 function App() {
@@ -18,8 +17,8 @@ function App() {
         id,
         fromTop,
         x: Math.random() * 80 + 10, // 画面横方向の出現位置（10%〜90%）
-        // スピードをさらに半分にするため、アニメーション時間を2倍に設定（0.4秒〜0.6秒程度）
-        duration: fromTop ? Math.random() * 0.2 + 0.4 : Math.random() * 0.2 + 0.4,
+        // スピードをさらに落とすため、アニメーション時間を長めに設定（例：2.0秒〜4.0秒程度）
+        duration: fromTop ? Math.random() * 2.0 + 2.0 : Math.random() * 2.0 + 2.0,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
