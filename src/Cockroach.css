@@ -1,8 +1,8 @@
-/* Cockroach Element Base Styling (Expanded clickable area) */
+/* Cockroach Element Base Styling (大幅に当たり判定を拡大) */
 .cockroach-wrapper {
     position: absolute;
-    width: 90px;  /* クリック・タップ範囲を広く拡大 */
-    height: 90px; /* クリック・タップ範囲を広く拡大 */
+    width: 140px;  /* タップしやすさを最優先して大きめに設定 */
+    height: 140px; /* タップしやすさを最優先して大きめに設定 */
     z-index: 5;
     cursor: pointer;
     display: flex;

@@ -1,116 +1,102 @@
-/* Game Container Styling */
+/* 全体のゲームコンテナ（中央が明るく、周辺が暗い放射状のグラデーション） */
 .game-container {
-  position: relative;
   width: 100vw;
   height: 100vh;
-  background-color: #1b4d3e; /* Floor background color */
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Start & Clear Screen Styling */
-.start-screen, .clear-screen {
-  text-align: center;
-  color: white;
-  z-index: 30;
-  background-color: rgba(0, 0, 0, 0.85);
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  max-width: 400px;
-  width: 90%;
+  background: radial-gradient(circle at center, #2e5c3e 0%, #1a3825 50%, #0d1e13 100%);
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center elements horizontally */
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  font-family: sans-serif;
+  user-select: none;
 }
 
-/* Cat Image Styling (Modified for smaller size) */
+/* スタート画面・ゲームオーバー画面などのカードデザイン */
+.start-screen, .clear-screen {
+  background: rgba(20, 40, 28, 0.9);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  color: #ffffff;
+  z-index: 10;
+  max-width: 400px;
+  width: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .cat-header {
   margin-bottom: 15px;
 }
 
 .cat-image {
-  width: auto;
-  max-height: 80px; /* Reduced size for better balance with title */
-  object-fit: contain;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #4CAF50;
 }
 
-/* Game Title Styling */
-.start-screen h1 {
-  font-size: 28px;
-  margin: 0 0 20px 0;
+h1 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #ffffff;
 }
 
-/* Start Button Styling */
+.instruction-text {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #d1ffd6;
+}
+
+.warning-text {
+  color: #ff6b6b;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
 .start-button {
-  background-color: #27ae60;
+  background-color: #4CAF50;
   color: white;
   border: none;
   padding: 12px 24px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .start-button:hover {
-  background-color: #2ecc71;
+  background-color: #45a049;
 }
 
-/* History Section Styling */
-.history-section {
-  margin-top: 30px;
-  text-align: left;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 15px;
-  border-radius: 8px;
-  width: 100%; /* Stretch to fit container */
-}
-
-.history-section h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.history-section ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: 14px;
-}
-
-.history-section li {
-  margin-bottom: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 4px;
-}
-
-/* Score Display Styling */
 .score-display {
   position: absolute;
   top: 20px;
-  right: 20px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 20px;
+  left: 20px;
+  font-size: 22px;
   font-weight: bold;
-  z-index: 20;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px 16px;
+  border-radius: 8px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Center Content Styling (for playing state) */
 .game-content {
-  text-align: center;
-  color: white;
-  z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .garbage-display {
@@ -118,6 +104,33 @@
 }
 
 .garbage-image {
-  width: 200px;
+  width: 150px;
   height: auto;
+  opacity: 0.85;
+}
+
+.history-section {
+  margin-top: 20px;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  border-radius: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.history-section h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #a3e4d7;
+}
+
+.history-section ul {
+  padding-left: 20px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.history-section li {
+  margin-bottom: 3px;
 }
