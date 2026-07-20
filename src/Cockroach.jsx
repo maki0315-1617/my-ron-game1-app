@@ -50,6 +50,7 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
     e.stopPropagation();
     if (isExploding) return;
 
+    // クリックされた位置のコンテナ内での相対座標を正しく取得
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
