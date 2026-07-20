@@ -1,42 +1,75 @@
 import React, { useState } from 'react';
 import './Cockroach.css';
-// 英語フォルダ名 (images) からゴキブリ画像と爆発画像を読み込む
-import cockroachImg from './images/cockroach.png';
-import explosionImg from './images/explosion.png';
 
-const Cockroach = ({ id, fromTop, x, duration, onClick }) => {
+import cockroachImage from './images/cockroach.png';
+import cockroachBadImage from './images/cockroach_bad.png';
+import cockroachSpecialImage from './images/cockroach_special.png';
+
+function Cockroach({ id, direction, type, position, duration, onClick }) {
   const [isExploding, setIsExploding] = useState(false);
 
-  // クリック時の処理
+  let wrapperStyle = {};
+  let imageStyle = {};
+  let animationClass = '';
+
+  wrapperStyle.animationDuration = `${duration}s`;
+
+  if (direction === 'top') {
+    wrapperStyle.left = `${position}%`;
+    wrapperStyle.top = '-50px';
+    animationClass = 'moveDown';
+  } else if (direction === 'bottom') {
+    wrapperStyle.left = `${position}%`;
+    wrapperStyle.bottom = '-50px';
+    animationClass = 'moveUp';
+  } else if (direction === 'left') {
+    wrapperStyle.top = `${position}%`;
+    wrapperStyle.left = '-50px';
+    animationClass = 'moveRight';
+    imageStyle.transform = 'rotate(90deg)';
+  } else if (direction === 'right') {
+    wrapperStyle.top = `${position}%`;
+    wrapperStyle.right = '-50px';
+    animationClass = 'moveLeft';
+    imageStyle.transform = 'rotate(-90deg)';
+  }
+
+  let imageSrc = cockroachImage;
+  let altText = 'Cockroach';
+
+  if (type === 'bad') {
+    imageSrc = cockroachBadImage;
+    altText = 'Bad Cockroach';
+  } else if (type === 'special') {
+    imageSrc = cockroachSpecialImage;
+    altText = 'Special Cockroach';
+  }
+
   const handleClick = (e) => {
     e.stopPropagation();
     if (isExploding) return;
+    setIsExploding(true);
 
-    setIsExploding(true); // 爆発画像に切り替え
-    // 0.3秒間爆発画像を表示した後に親コンポーネントへ通知して消去
     setTimeout(() => {
       onClick(id);
-    }, 300);
-  };
-
-  // インラインスタイルで横位置とアニメーション速度を設定
-  const style = {
-    left: `${x}%`,
-    animationDuration: `${duration}s`,
+    }, 400); // Match explosion effect duration
   };
 
   return (
     <div 
-      className={`cockroach ${fromTop ? 'from-top' : 'from-bottom'}`}
-      style={style}
+      className={`cockroach-wrapper ${animationClass} ${isExploding ? 'exploding' : ''}`} 
+      style={wrapperStyle}
       onClick={handleClick}
     >
       <img 
-        src={isExploding ? explosionImg : cockroachImg} 
-        alt={isExploding ? "Explosion" : "Cockroach"} 
+        src={imageSrc} 
+        alt={altText} 
+        className="cockroach-image" 
+        style={imageStyle} 
       />
+      {isExploding && <div className="explosion-effect">💥</div>}
     </div>
   );
-};
+}
 
 export default Cockroach;
