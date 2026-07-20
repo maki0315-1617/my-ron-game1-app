@@ -31,6 +31,19 @@ function App() {
 
     const timer = setTimeout(() => {
       // 1 minute passed -> Game Over
+      const now = new Date();
+      const dateTimeString = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      
+      const record = {
+        dateTime: dateTimeString,
+        seconds: 0,
+        isGameOver: true
+      };
+
+      const updatedHistory = [record, ...history].slice(0, 3);
+      setHistory(updatedHistory);
+      localStorage.setItem('gameHistory', JSON.stringify(updatedHistory));
+
       setGameState('gameover');
       setCockroaches([]);
     }, 60000);
@@ -61,13 +74,16 @@ function App() {
       clearTimeout(timer);
       clearInterval(spawnInterval);
     };
-  }, [gameState]);
+  }, [gameState, history]);
 
-  const handleCockroachClick = (id) => {
+  const handleCockroachClick = (id, type) => {
     if (gameState !== 'playing') return;
 
     setScore((prevScore) => {
-      const nextScore = prevScore + 1;
+      // Bad cockroach subtracts 1 point (or ensure it doesn't go below 0)
+      const points = type === 'bad' ? -1 : 1;
+      const nextScore = Math.max(0, prevScore + points);
+
       if (nextScore >= 10) {
         const endTime = Date.now();
         const durationSeconds = ((endTime - startTime) / 1000).toFixed(2);
@@ -115,6 +131,7 @@ function App() {
             <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
           </div>
           <h1>ロン君のゴキ退治</h1>
+          <p className="instruction-text">1分以内でゴキを10匹退治してね</p>
           <button className="start-button" onClick={startGame}>ゲームスタート</button>
           
           <div className="history-section">
@@ -141,6 +158,7 @@ function App() {
           </div>
 
           <div className="game-content">
+            <p className="warning-text">注意：バットゴキブリはマイナスになるから気を付けて！</p>
             <div className="cat-header">
               <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
             </div>
