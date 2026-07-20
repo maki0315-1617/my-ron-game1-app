@@ -80,8 +80,10 @@ function App() {
     if (gameState !== 'playing') return;
 
     setScore((prevScore) => {
-      // Bad cockroach subtracts 1 point (or ensure it doesn't go below 0)
-      const points = type === 'bad' ? -1 : 1;
+      let points = 1;
+      if (type === 'bad') points = -3;
+      if (type === 'special') points = 2;
+
       const nextScore = Math.max(0, prevScore + points);
 
       if (nextScore >= 10) {
@@ -203,7 +205,7 @@ function App() {
           <div className="cat-header">
             <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
           </div>
-          <h1 style={{ color: 'red' }}>NGゲームオーバー</h1>
+          <h1 style={{ color: 'red' }}>ゲームオーバー</h1>
           <p>1分が経過しました...</p>
           <button className="start-button" onClick={startGame}>もう一度プレイ</button>
           <button className="start-button" style={{ marginTop: '10px', backgroundColor: '#555' }} onClick={backToTitle}>タイトルに戻る</button>
