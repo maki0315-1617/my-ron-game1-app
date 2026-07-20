@@ -10,11 +10,11 @@
   }
   
   .cockroach.from-top {
-    animation-name: moveFromTopToBottom;
+    animation-name: moveFromTopToBottomMax;
   }
   
   .cockroach.from-bottom {
-    animation-name: moveFromBottomToTop;
+    animation-name: moveFromBottomToTopMax;
   }
   
   .cockroach img {
@@ -22,38 +22,38 @@
     height: auto;
   }
   
-  /* 上から画面の端から端まで移動 */
-  @keyframes moveFromTopToBottom {
+  /* 上端から下端まで画面全体を縦断 */
+  @keyframes moveFromTopToBottomMax {
     0% {
-      top: -50px;
+      top: -10vh;
       opacity: 0;
     }
-    10% {
+    5% {
       opacity: 1;
     }
-    90% {
+    95% {
       opacity: 1;
     }
     100% {
-      top: 105vh;
+      top: 110vh;
       opacity: 0;
     }
   }
   
-  /* 下から画面の端から端まで移動 */
-  @keyframes moveFromBottomToTop {
+  /* 下端から上端まで画面全体を縦断 */
+  @keyframes moveFromBottomToTopMax {
     0% {
-      top: 105vh;
+      top: 110vh;
       opacity: 0;
     }
-    10% {
+    5% {
       opacity: 1;
     }
-    90% {
+    95% {
       opacity: 1;
     }
     100% {
-      top: -50px;
+      top: -10vh;
       opacity: 0;
     }
   }
