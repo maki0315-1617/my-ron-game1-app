@@ -17,8 +17,8 @@ function App() {
         id,
         fromTop,
         x: Math.random() * 80 + 10, // 画面横方向の出現位置（10%〜90%）
-        // スピードをさらに落とすため、アニメーション時間をさらに長めに設定（例：5.0秒〜8.0秒程度）
-        duration: fromTop ? Math.random() * 3.0 + 5.0 : Math.random() * 3.0 + 5.0,
+        // スピードをさらに極端に落とすため、アニメーション時間をかなり長く設定（例：10.0秒〜15.0秒程度）
+        duration: fromTop ? Math.random() * 5.0 + 10.0 : Math.random() * 5.0 + 10.0,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
@@ -26,9 +26,9 @@ function App() {
       // 画面外へ移動した後にメモリから削除
       setTimeout(() => {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
-      }, (newCockroach.duration + 0.2) * 1000);
+      }, (newCockroach.duration + 0.5) * 1000);
 
-    }, 1000);
+    }, 2000);
 
     return () => clearInterval(spawnInterval);
   }, []);
