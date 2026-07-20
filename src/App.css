@@ -10,9 +10,8 @@ body, html {
 .game-container {
   width: 100vw;
   height: 100vh;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  /* 床やグラウンドをイメージした背景色 */
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -24,6 +23,7 @@ body, html {
   border-radius: 12px;
   text-align: center;
   color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .game-content h1 {
