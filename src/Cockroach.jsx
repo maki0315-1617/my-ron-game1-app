@@ -1,23 +1,33 @@
 import React from 'react';
 import './Cockroach.css';
-// 英語フォルダ名 (images) からゴキブリ画像を読み込む
-import cockroachImg from './images/cockroach.png';
+import cockroachImage from './images/cockroach.png';
 
-const Cockroach = ({ fromTop, x, duration }) => {
-  // インラインスタイルで横位置とアニメーション速度を設定
-  const style = {
-    left: `${x}%`,
-    animationDuration: `${duration}s`,
-  };
+function Cockroach({ direction, position, duration }) {
+  // Determine style and animation class based on direction
+  let style = {};
+  let animationClass = '';
+
+  if (direction === 'top') {
+    style = { left: `${position}%`, top: '-50px' };
+    animationClass = 'move-down';
+  } else if (direction === 'bottom') {
+    style = { left: `${position}%`, bottom: '-50px' };
+    animationClass = 'move-up';
+  } else if (direction === 'left') {
+    style = { top: `${position}%`, left: '-50px' };
+    animationClass = 'move-right';
+  } else if (direction === 'right') {
+    style = { top: `${position}%`, right: '-50px' };
+    animationClass = 'move-left';
+  }
+
+  style.animationDuration = `${duration}s`;
 
   return (
-    <div 
-      className={`cockroach ${fromTop ? 'from-top' : 'from-bottom'}`}
-      style={style}
-    >
-      <img src={cockroachImg} alt="ゴキブリ" />
+    <div className={`cockroach-wrapper ${animationClass}`} style={style}>
+      <img src={cockroachImage} alt="Cockroach" className="cockroach-image" />
     </div>
   );
-};
+}
 
 export default Cockroach;

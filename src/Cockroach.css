@@ -1,60 +1,52 @@
-/* ゴキブリの基本スタイル（1/30のサイズに縮小） */
-.cockroach {
+/* Cockroach Element Base Styling */
+.cockroach-wrapper {
     position: absolute;
-    width: 25px; 
-    height: auto;
-    pointer-events: none;
+    width: 40px;
+    height: 40px;
     z-index: 5;
-    
-    animation-timing-function: linear;
-    animation-fill-mode: forwards;
+    pointer-events: none;
   }
   
-  .cockroach.from-top {
-    animation-name: moveFromTopToBottomMax;
-  }
-  
-  .cockroach.from-bottom {
-    animation-name: moveFromBottomToTopMax;
-  }
-  
-  .cockroach img {
+  .cockroach-image {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: contain;
   }
   
-  /* 上端から下端まで画面全体を縦断するアニメーション */
-  @keyframes moveFromTopToBottomMax {
-    0% {
-      top: -10vh;
-      opacity: 0;
-    }
-    5% {
-      opacity: 1;
-    }
-    95% {
-      opacity: 1;
-    }
-    100% {
-      top: 110vh;
-      opacity: 0;
-    }
+  /* Keyframe Animations for 4 Directions */
+  @keyframes moveDown {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(calc(100vh + 100px)); }
   }
   
-  /* 下端から上端まで画面全体を縦断するアニメーション */
-  @keyframes moveFromBottomToTopMax {
-    0% {
-      top: 110vh;
-      opacity: 0;
-    }
-    5% {
-      opacity: 1;
-    }
-    95% {
-      opacity: 1;
-    }
-    100% {
-      top: -10vh;
-      opacity: 0;
-    }
+  @keyframes moveUp {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(calc(-100vh - 100px)); }
+  }
+  
+  @keyframes moveRight {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(100vw + 100px)); }
+  }
+  
+  @keyframes moveLeft {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-100vw - 100px)); }
+  }
+  
+  /* Assigning Animations */
+  .move-down {
+    animation: moveDown linear forwards;
+  }
+  
+  .move-up {
+    animation: moveUp linear forwards;
+  }
+  
+  .move-right {
+    animation: moveRight linear forwards;
+  }
+  
+  .move-left {
+    animation: moveLeft linear forwards;
   }

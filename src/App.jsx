@@ -11,14 +11,17 @@ function App() {
     // Timer to spawn cockroaches at regular intervals
     const spawnInterval = setInterval(() => {
       const id = Date.now();
-      const fromTop = Math.random() > 0.5;
+      // Randomly choose from 4 directions: top, bottom, left, right
+      const directions = ['top', 'bottom', 'left', 'right'];
+      const direction = directions[Math.floor(Math.random() * directions.length)];
 
       const newCockroach = {
         id,
-        fromTop,
-        x: Math.random() * 80 + 10, // Horizontal spawn position on screen (10% to 90%)
-        // Adjusted to a moderate intermediate speed (animation duration between 3.0s and 6.0s)
-        duration: fromTop ? Math.random() * 3.0 + 3.0 : Math.random() * 3.0 + 3.0,
+        direction,
+        // Position depends on direction (percentage for placement)
+        position: Math.random() * 80 + 10, 
+        // Moderate intermediate speed (animation duration between 3.0s and 6.0s)
+        duration: Math.random() * 3.0 + 3.0,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
@@ -49,12 +52,12 @@ function App() {
         </div>
       </div>
 
-      {/* Render cockroaches moving across the top/bottom edges of the screen */}
+      {/* Render cockroaches moving across the screen edges */}
       {cockroaches.map((roach) => (
         <Cockoach 
           key={roach.id} 
-          fromTop={roach.fromTop} 
-          x={roach.x} 
+          direction={roach.direction} 
+          position={roach.position} 
           duration={roach.duration} 
         />
       ))}
