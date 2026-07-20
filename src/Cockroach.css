@@ -3,10 +3,8 @@
     position: absolute;
     width: 40px;
     height: 40px;
-    z-index: 5;
+    z-index: 5; /* Ensure cockroaches are above floor but below game content */
     pointer-events: none;
-    /* Standard rotation for vertical movement */
-    transform: rotate(0deg); 
   }
   
   .cockroach-image {
@@ -17,55 +15,38 @@
   
   /* Keyframe Animations for 4 Directions */
   @keyframes moveDown {
-    0% { 
-      transform: translateY(0) rotate(0deg); 
-    }
-    100% { 
-      transform: translateY(calc(100vh + 100px)) rotate(0deg); 
-    }
+    0% { transform: translateY(0); }
+    100% { transform: translateY(calc(100vh + 100px)); }
   }
   
   @keyframes moveUp {
-    0% { 
-      transform: translateY(0) rotate(0deg); 
-    }
-    100% { 
-      transform: translateY(calc(-100vh - 100px)) rotate(0deg); 
-    }
+    0% { transform: translateY(0); }
+    100% { transform: translateY(calc(-100vh - 100px)); }
   }
   
-  /* Modified Keyframes for horizontal movement (rotated 90 degrees) */
   @keyframes moveRight {
-    0% { 
-      transform: translateX(0) rotate(90deg); 
-    }
-    100% { 
-      transform: translateX(calc(100vw + 100px)) rotate(90deg); 
-    }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(100vw + 100px)); }
   }
   
   @keyframes moveLeft {
-    0% { 
-      transform: translateX(0) rotate(90deg); 
-    }
-    100% { 
-      transform: translateX(calc(-100vw - 100px)) rotate(90deg); 
-    }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-100vw - 100px)); }
   }
   
-  /* Assigning Animations */
-  .move-down {
+  /* Assigning Animations (using new clearer names) */
+  .moveDown {
     animation: moveDown linear forwards;
   }
   
-  .move-up {
+  .moveUp {
     animation: moveUp linear forwards;
   }
   
-  .move-right {
+  .moveRight {
     animation: moveRight linear forwards;
   }
   
-  .move-left {
+  .moveLeft {
     animation: moveLeft linear forwards;
   }
