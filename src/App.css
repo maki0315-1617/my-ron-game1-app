@@ -3,7 +3,7 @@
   position: relative;
   width: 100vw;
   height: 100vh;
-  background-color: #1b4d3e;
+  background-color: #1b4d3e; /* Floor background color */
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -21,8 +21,29 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   max-width: 400px;
   width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center elements horizontally */
 }
 
+/* Cat Image Styling (Modified for smaller size) */
+.cat-header {
+  margin-bottom: 15px;
+}
+
+.cat-image {
+  width: auto;
+  max-height: 80px; /* Reduced size for better balance with title */
+  object-fit: contain;
+}
+
+/* Game Title Styling */
+.start-screen h1 {
+  font-size: 28px;
+  margin: 0 0 20px 0;
+}
+
+/* Start Button Styling */
 .start-button {
   background-color: #27ae60;
   color: white;
@@ -32,7 +53,6 @@
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
-  margin-top: 20px;
   transition: background-color 0.2s;
 }
 
@@ -40,12 +60,14 @@
   background-color: #2ecc71;
 }
 
+/* History Section Styling */
 .history-section {
   margin-top: 30px;
   text-align: left;
   background-color: rgba(255, 255, 255, 0.1);
   padding: 15px;
   border-radius: 8px;
+  width: 100%; /* Stretch to fit container */
 }
 
 .history-section h3 {
@@ -81,11 +103,14 @@
   z-index: 20;
 }
 
-/* Center Content Styling */
+/* Center Content Styling (for playing state) */
 .game-content {
   text-align: center;
   color: white;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .garbage-display {
