@@ -1,8 +1,8 @@
-/* Cockroach Element Base Styling (大幅に当たり判定を拡大) */
+/* Cockroach Element Base Styling */
 .cockroach-wrapper {
     position: absolute;
-    width: 140px;  /* タップしやすさを最優先して大きめに設定 */
-    height: 140px; /* タップしやすさを最優先して大きめに設定 */
+    width: 140px;
+    height: 140px;
     z-index: 5;
     cursor: pointer;
     display: flex;
@@ -11,8 +11,8 @@
   }
   
   .cockroach-image {
-    width: 45px;  /* 見た目のゴキブリのサイズはそのまま維持 */
-    height: 45px; /* 見た目のゴキブリのサイズはそのまま維持 */
+    width: 45px;
+    height: 45px;
     object-fit: contain;
   }
   
@@ -57,24 +57,23 @@
   /* Explosion Effect on Click */
   .exploding {
     animation: none !important;
-    transform: scale(1.5);
-    transition: transform 0.2s ease-in-out;
   }
   
   .explosion-effect {
     position: absolute;
     font-size: 30px;
+    transform: translate(-50%, -50%); /* 基準点をクリックした中心に合わせる */
     animation: explodeAnim 0.4s ease-out forwards;
     pointer-events: none;
   }
   
   @keyframes explodeAnim {
     0% {
-      transform: scale(0.5);
+      transform: translate(-50%, -50%) scale(0.5);
       opacity: 1;
     }
     100% {
-      transform: scale(2);
+      transform: translate(-50%, -50%) scale(2);
       opacity: 0;
     }
   }

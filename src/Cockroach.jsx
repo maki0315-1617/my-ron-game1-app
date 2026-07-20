@@ -7,6 +7,7 @@ import cockroachSpecialImage from './images/cockroach_special.png';
 
 function Cockroach({ id, direction, type, position, duration, onClick }) {
   const [isExploding, setIsExploding] = useState(false);
+  const [clickPos, setClickPos] = useState({ x: 50, y: 50 }); // クリック位置の座標
 
   let wrapperStyle = {};
   let imageStyle = {};
@@ -48,10 +49,16 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
   const handleClick = (e) => {
     e.stopPropagation();
     if (isExploding) return;
+
+    // クリックされた要素（wrapper）内の相対座標を取得
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    setClickPos({ x, y });
     setIsExploding(true);
 
     setTimeout(() => {
-      // id と type の両方を親コンポーネントへ確実に渡す
       onClick(id, type);
     }, 400);
   };
@@ -68,7 +75,14 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
         className="cockroach-image" 
         style={imageStyle} 
       />
-      {isExploding && <div className="explosion-effect">💥</div>}
+      {isExploding && (
+        <div 
+          className="explosion-effect" 
+          style={{ left: `${clickPos.x}px`, top: `${clickPos.y}px` }}
+        >
+          💥
+        </div>
+      )}
     </div>
   );
 }
