@@ -1,63 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Cockroach.css';
+// 英語フォルダ名 (images) からゴキブリ画像と爆発画像を読み込む
+import cockroachImg from './images/cockroach.png';
+import explosionImg from './images/explosion.png';
 
-// Import all cockroach images including special
-import cockroachImage from './images/cockroach.png';
-import cockroachBadImage from './images/cockroach_bad.png';
-import cockroachSpecialImage from './images/cockroach_special.png';
+const Cockroach = ({ id, fromTop, x, duration, onClick }) => {
+  const [isExploding, setIsExploding] = useState(false);
 
-function Cockroach({ direction, type, position, duration }) {
-  // Determine style and animation class based on direction
-  let wrapperStyle = {};
-  let imageStyle = {};
-  let animationClass = '';
+  // クリック時の処理
+  const handleClick = (e) => {
+    e.stopPropagation();
+    if (isExploding) return;
 
-  // Set base animation duration
-  wrapperStyle.animationDuration = `${duration}s`;
+    setIsExploding(true); // 爆発画像に切り替え
+    // 0.3秒間爆発画像を表示した後に親コンポーネントへ通知して消去
+    setTimeout(() => {
+      onClick(id);
+    }, 300);
+  };
 
-  // Calculate initial position and choose animation class
-  if (direction === 'top') {
-    wrapperStyle.left = `${position}%`;
-    wrapperStyle.top = '-50px';
-    animationClass = 'moveDown';
-  } else if (direction === 'bottom') {
-    wrapperStyle.left = `${position}%`;
-    wrapperStyle.bottom = '-50px';
-    animationClass = 'moveUp';
-  } else if (direction === 'left') {
-    wrapperStyle.top = `${position}%`;
-    wrapperStyle.left = '-50px';
-    animationClass = 'moveRight';
-    imageStyle.transform = 'rotate(90deg)'; // Rotate for horizontal movement
-  } else if (direction === 'right') {
-    wrapperStyle.top = `${position}%`;
-    wrapperStyle.right = '-50px';
-    animationClass = 'moveLeft';
-    imageStyle.transform = 'rotate(-90deg)'; // Rotate for horizontal movement
-  }
-
-  // Select the image source based on the type prop
-  let imageSrc = cockroachImage;
-  let altText = 'Cockroach';
-
-  if (type === 'bad') {
-    imageSrc = cockroachBadImage;
-    altText = 'Bad Cockroach';
-  } else if (type === 'special') {
-    imageSrc = cockroachSpecialImage;
-    altText = 'Special Cockroach';
-  }
+  // インラインスタイルで横位置とアニメーション速度を設定
+  const style = {
+    left: `${x}%`,
+    animationDuration: `${duration}s`,
+  };
 
   return (
-    <div className={`cockroach-wrapper ${animationClass}`} style={wrapperStyle}>
+    <div 
+      className={`cockroach ${fromTop ? 'from-top' : 'from-bottom'}`}
+      style={style}
+      onClick={handleClick}
+    >
       <img 
-        src={imageSrc} 
-        alt={altText} 
-        className="cockroach-image" 
-        style={imageStyle} 
+        src={isExploding ? explosionImg : cockroachImg} 
+        alt={isExploding ? "Explosion" : "Cockroach"} 
       />
     </div>
   );
-}
+};
 
 export default Cockroach;
