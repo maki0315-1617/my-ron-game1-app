@@ -1,11 +1,9 @@
 import React from 'react';
 import './Cockroach.css';
-import cockroachImg from './images/cockroach.png';
+import cockroachImg from './画像/cockroach.png';
 
 const Cockroach = ({ fromTop, x, duration }) => {
   const style = {
-    '--start-y': fromTop ? '-10%' : '110%',
-    '--end-y': fromTop ? '110%' : '-10%',
     left: `${x}%`,
     animationDuration: `${duration}s`,
   };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Cockroach from './Cockroach';
-import trashPileImage from './images/trash_pile.png'; 
+import trashPileImage from './画像/trash_pile.png'; 
 
 function App() {
   const [cockroaches, setCockroaches] = useState([]);
@@ -15,16 +15,17 @@ function App() {
         id,
         fromTop,
         x: Math.random() * 80 + 10,
-        duration: fromTop ? Math.random() * 2 + 2 : Math.random() * 3 + 3,
+        // スピードを5倍にするため時間を短縮
+        duration: fromTop ? Math.random() * 0.4 + 0.4 : Math.random() * 0.5 + 0.5,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
 
       setTimeout(() => {
         setCockroaches((prev) => prev.filter((c) => c.id !== id));
-      }, (newCockroach.duration + 0.5) * 1000);
+      }, (newCockroach.duration + 0.2) * 1000);
 
-    }, 1500);
+    }, 1000);
 
     return () => clearInterval(spawnInterval);
   }, []);

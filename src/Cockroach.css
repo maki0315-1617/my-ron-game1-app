@@ -1,16 +1,20 @@
 .cockroach {
     position: absolute;
-    /* 元のサイズ（約1500px等と仮定した場合の1/30、または基準となる標準幅の1/30に設定） */
-    width: 25px; 
+    width: 25px; /* サイズ 1/30 */
     height: auto;
     pointer-events: none;
     z-index: 5;
     
-    animation-name: moveVertical;
     animation-timing-function: linear;
     animation-fill-mode: forwards;
-    
-    opacity: 0.9;
+  }
+  
+  .cockroach.from-top {
+    animation-name: moveFromTopToBottom;
+  }
+  
+  .cockroach.from-bottom {
+    animation-name: moveFromBottomToTop;
   }
   
   .cockroach img {
@@ -18,15 +22,36 @@
     height: auto;
   }
   
-  @keyframes moveVertical {
+  @keyframes moveFromTopToBottom {
     0% {
-      transform: translate(-50%, var(--start-y)) scale(1);
+      top: -50px;
+      opacity: 0;
     }
-    80% {
-      opacity: 0.9;
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
     }
     100% {
-      transform: translate(-50%, var(--end-y)) scale(1.1);
+      top: 105vh;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes moveFromBottomToTop {
+    0% {
+      top: 105vh;
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      top: -50px;
       opacity: 0;
     }
   }
