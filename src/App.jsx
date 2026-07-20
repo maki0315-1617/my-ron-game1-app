@@ -203,7 +203,7 @@ function App() {
           <div className="cat-header">
             <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
           </div>
-          <h1 style={{ color: 'red' }}>ゲームオーバー</h1>
+          <h1 style={{ color: 'red' }}>NGゲームオーバー</h1>
           <p>1分が経過しました...</p>
           <button className="start-button" onClick={startGame}>もう一度プレイ</button>
           <button className="start-button" style={{ marginTop: '10px', backgroundColor: '#555' }} onClick={backToTitle}>タイトルに戻る</button>
