@@ -14,7 +14,6 @@ function App() {
   const [clearTime, setClearTime] = useState(null);
   const [history, setHistory] = useState([]);
 
-  // Load history from localStorage on mount
   useEffect(() => {
     const savedHistory = localStorage.getItem('gameHistory');
     if (savedHistory) {
@@ -26,7 +25,6 @@ function App() {
     }
   }, []);
 
-  // Game loop for spawning cockroaches
   useEffect(() => {
     if (gameState !== 'playing') return;
 
@@ -41,7 +39,7 @@ function App() {
         direction,
         type,
         position: Math.random() * 80 + 10, 
-        duration: Math.random() * 6.0 + 10.0, // Slow speed maintained
+        duration: Math.random() * 6.0 + 10.0,
       };
 
       setCockroaches((prev) => [...prev, newCockroach]);
@@ -55,14 +53,12 @@ function App() {
     return () => clearInterval(spawnInterval);
   }, [gameState]);
 
-  // Handle score update and check for clear condition
   const handleCockroachClick = (id) => {
     if (gameState !== 'playing') return;
 
     setScore((prevScore) => {
       const nextScore = prevScore + 1;
       if (nextScore >= 10) {
-        // Game Clear
         const endTime = Date.now();
         const durationSeconds = ((endTime - startTime) / 1000).toFixed(2);
         
@@ -100,16 +96,6 @@ function App() {
     setGameState('start');
   };
 
-  // 動的にタイトルを決定するロジック
-  const getDynamicTitle = () => {
-    if (gameState === 'start') {
-      return 'ロン君のゴキ退治'; // タイトル変更
-    }
-    return 'ロン君のゴキ退治'; // プレイ中もタイトルを固定する場合
-  };
-
-  const dynamicTitle = getDynamicTitle();
-
   return (
     <div className="game-container">
       {gameState === 'start' && (
@@ -117,8 +103,7 @@ function App() {
           <div className="cat-header">
             <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
           </div>
-          {/* <h1>タグをハードコーディングから動的なテキストに変更 */}
-          <h1>{dynamicTitle}</h1>
+          <h1>ロン君のゴキ退治</h1>
           <button className="start-button" onClick={startGame}>ゲームスタート</button>
           
           <div className="history-section">
