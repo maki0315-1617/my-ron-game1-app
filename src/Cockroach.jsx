@@ -1,7 +1,7 @@
 import React from 'react';
 import './Cockroach.css';
-// 画像フォルダからゴキブリ画像を読み込む
-import cockroachImg from './画像/cockroach.png';
+// 英語フォルダ名 (images) からゴキブリ画像を読み込む
+import cockroachImg from './images/cockroach.png';
 
 const Cockroach = ({ fromTop, x, duration }) => {
   // インラインスタイルで横位置とアニメーション速度を設定
