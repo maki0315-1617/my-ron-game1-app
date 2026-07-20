@@ -7,7 +7,7 @@ import cockroachSpecialImage from './images/cockroach_special.png';
 
 function Cockroach({ id, direction, type, position, duration, onClick }) {
   const [isExploding, setIsExploding] = useState(false);
-  const [clickPos, setClickPos] = useState({ x: 50, y: 50 }); // クリック位置の座標
+  const [clickPos, setClickPos] = useState({ x: 0, y: 0 });
 
   let wrapperStyle = {};
   let imageStyle = {};
@@ -50,11 +50,10 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
     e.stopPropagation();
     if (isExploding) return;
 
-    // クリックされた要素（wrapper）内の相対座標を取得
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
+
     setClickPos({ x, y });
     setIsExploding(true);
 

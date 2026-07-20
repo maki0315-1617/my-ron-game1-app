@@ -62,18 +62,20 @@
   .explosion-effect {
     position: absolute;
     font-size: 30px;
-    transform: translate(-50%, -50%); /* 基準点をクリックした中心に合わせる */
+    margin-left: -15px; /* エフェクトの幅(約30px)の半分を引いて正確な中心に合わせる */
+    margin-top: -15px;  /* エフェクトの高さ(約30px)の半分を引いて正確な中心に合わせる */
     animation: explodeAnim 0.4s ease-out forwards;
     pointer-events: none;
+    z-index: 10;
   }
   
   @keyframes explodeAnim {
     0% {
-      transform: translate(-50%, -50%) scale(0.5);
+      transform: scale(0.5);
       opacity: 1;
     }
     100% {
-      transform: translate(-50%, -50%) scale(2);
+      transform: scale(2);
       opacity: 0;
     }
   }
