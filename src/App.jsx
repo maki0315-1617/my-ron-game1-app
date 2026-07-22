@@ -21,6 +21,9 @@ function App() {
   const [stars, setStars] = useState(0);
   const [finalCelebration, setFinalCelebration] = useState(false);
 
+  // 🎁 ギフト画面
+  const [giftScreen, setGiftScreen] = useState(false);
+
   useEffect(() => {
     const savedHistory = localStorage.getItem('gameHistory');
     if (savedHistory) {
@@ -172,8 +175,41 @@ function App() {
   return (
     <div className={`game-container ${gameState === 'playing' ? 'game-floor' : ''}`}>
 
+      {/* 🎁 ギフト受け取り画面 */}
+      {giftScreen && (
+        <div className="clear-screen">
+          <div className="cat-header">
+            <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
+          </div>
+
+          <h1 style={{ color: 'gold' }}>🎁 ギフトを受け取りました！</h1>
+          <p>ロン君からのスペシャルギフトです！</p>
+
+          <button
+            className="start-button"
+            onClick={() => {
+              setGiftScreen(false);
+              setGameState('start');
+            }}
+          >
+            トップ画面へ戻る
+          </button>
+
+          <button
+            className="start-button"
+            style={{ marginTop: '10px', backgroundColor: '#555' }}
+            onClick={() => {
+              setGiftScreen(false);
+              setGameState('gameover');
+            }}
+          >
+            ゲーム終了画面へ
+          </button>
+        </div>
+      )}
+
       {/* ⭐ 最終お祝い画面 */}
-      {finalCelebration && (
+      {finalCelebration && !giftScreen && (
         <div className="clear-screen">
           <div className="cat-header">
             <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
@@ -187,6 +223,17 @@ function App() {
           <button
             className="start-button"
             onClick={() => {
+              setGiftScreen(true);
+              setFinalCelebration(false);
+            }}
+          >
+            ギフトを受け取る
+          </button>
+
+          <button
+            className="start-button"
+            style={{ marginTop: '10px' }}
+            onClick={() => {
               setStars(0);
               setFinalCelebration(false);
               setGameState('start');
@@ -198,7 +245,7 @@ function App() {
       )}
 
       {/* タイトル画面 */}
-      {gameState === 'start' && !finalCelebration && (
+      {gameState === 'start' && !finalCelebration && !giftScreen && (
         <div className="start-screen">
           <div className="cat-header">
             <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
@@ -213,6 +260,11 @@ function App() {
               現在の星：{'⭐'.repeat(stars)}
             </p>
           )}
+
+          {/* ⭐ ギフト案内 */}
+          <p style={{ fontSize: '20px', marginTop: '10px', color: 'gold' }}>
+            星を3個獲得してギフトをもらおう！
+          </p>
 
           <button className="start-button" onClick={startGame}>ゲームスタート</button>
 
@@ -295,7 +347,7 @@ function App() {
       )}
 
       {/* クリア画面 */}
-      {gameState === 'clear' && !finalCelebration && (
+      {gameState === 'clear' && !finalCelebration && !giftScreen && (
         <div className="clear-screen">
           <div className="cat-header">
             <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
@@ -308,7 +360,7 @@ function App() {
       )}
 
       {/* ゲームオーバー画面 */}
-      {gameState === 'gameover' && (
+      {gameState === 'gameover' && !giftScreen && (
         <div className="clear-screen">
           <div className="cat-header">
             <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
