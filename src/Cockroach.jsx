@@ -61,18 +61,20 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
 
   return (
     <>
-      <div 
-        className={`cockroach-wrapper ${animationClass} ${isExploding ? 'exploding' : ''}`} 
-        style={wrapperStyle}
-        onClick={handleClick}
-      >
-        <img 
-          src={imageSrc} 
-          alt={altText} 
-          className="cockroach-image" 
-          style={imageStyle} 
-        />
-      </div>
+<div 
+  className={`cockroach-wrapper ${animationClass}`} 
+  style={wrapperStyle}
+  onClick={handleClick}
+>
+  <div className="cockroach-wiggle">
+    <img 
+      src={imageSrc} 
+      alt={altText} 
+      className="cockroach-image" 
+      style={imageStyle} 
+    />
+  </div>
+</div>
 
       {/* エフェクトをコンテナの外に固定配置し、ズレを完全に排除 */}
       {isExploding && (
