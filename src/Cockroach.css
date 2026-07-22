@@ -46,29 +46,21 @@
   }
   
  /* ning Animations */
-  .moveDown {
-    animation:
-      moveDown linear forwards,
-      realisticMove 0.8s linear infinite;
-  }
-  
-  .moveUp {
-    animation:
-      moveUp linear forwards,
-      realisticMove 0.8s linear infinite;
-  }
-  
-  .moveRight {
-    animation:
-      moveRight linear forwards,
-      realisticMove 0.8s linear infinite;
-  }
-  
-  .moveLeft {
-    animation:
-      moveLeft linear forwards,
-      realisticMove 0.8s linear infinite;
-  }
+ .moveDown {
+  animation: moveDown linear forwards;
+}
+
+.moveUp {
+  animation: moveUp linear forwards;
+}
+
+.moveRight {
+  animation: moveRight linear forwards;
+}
+
+.moveLeft {
+  animation: moveLeft linear forwards;
+}
   
 /*plosion Effect on Click */
   .exploding {
