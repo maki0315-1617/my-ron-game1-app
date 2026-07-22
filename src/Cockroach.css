@@ -11,8 +11,8 @@
   }
   
   .cockroach-image {
-    width: 45px;
-    height: 45px;
+    width: 60px;
+    height: 60px;
     object-fit: contain;
   }
   
@@ -37,24 +37,40 @@
     100% { transform: translateX(calc(-100vw - 100px)); }
   }
   
-  /* Assigning Animations */
+  @keyframes realisticMove {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    25%  { transform: translate(15px, -10px) rotate(5deg); }
+    50%  { transform: translate(30px, 10px) rotate(-5deg); }
+    75%  { transform: translate(45px, -5px) rotate(3deg); }
+    100% { transform: translate(60px, 0) rotate(0deg); }
+  }
+  
+  ning Animations */
   .moveDown {
-    animation: moveDown linear forwards;
+    animation:
+      moveDown linear forwards,
+      realisticMove 0.8s linear infinite;
   }
   
   .moveUp {
-    animation: moveUp linear forwards;
+    animation:
+      moveUp linear forwards,
+      realisticMove 0.8s linear infinite;
   }
   
   .moveRight {
-    animation: moveRight linear forwards;
+    animation:
+      moveRight linear forwards,
+      realisticMove 0.8s linear infinite;
   }
   
   .moveLeft {
-    animation: moveLeft linear forwards;
+    animation:
+      moveLeft linear forwards,
+      realisticMove 0.8s linear infinite;
   }
   
-  /* Explosion Effect on Click */
+plosion Effect on Click */
   .exploding {
     display: none !important; /* クリックされた瞬間にゴキブリ本体を非表示にしてエフェクトだけ残す */
   }
