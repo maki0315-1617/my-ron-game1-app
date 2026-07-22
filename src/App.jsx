@@ -14,8 +14,12 @@ function App() {
   const [clearTime, setClearTime] = useState(null);
   const [history, setHistory] = useState([]);
 
-  // 🔥 追加：カウントダウン用
+  // 🔥 カウントダウン
   const [timeLeft, setTimeLeft] = useState(60);
+
+  // ⭐ 星システム
+  const [stars, setStars] = useState(0);
+  const [finalCelebration, setFinalCelebration] = useState(false);
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('gameHistory');
@@ -45,8 +49,10 @@ function App() {
     // 60秒でゲームオーバー
     const timer = setTimeout(() => {
       const now = new Date();
-      const dateTimeString = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-      
+      const dateTimeString =
+        `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ` +
+        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
       const record = {
         dateTime: dateTimeString,
         seconds: 0,
@@ -72,7 +78,7 @@ function App() {
         id,
         direction,
         type,
-        position: Math.random() * 80 + 10, 
+        position: Math.random() * 80 + 10,
         duration: Math.random() * 6.0 + 10.0,
       };
 
@@ -87,7 +93,7 @@ function App() {
     return () => {
       clearTimeout(timer);
       clearInterval(spawnInterval);
-      clearInterval(countdown); // 🔥追加
+      clearInterval(countdown);
     };
   }, [gameState, history]);
 
@@ -105,10 +111,12 @@ function App() {
       if (nextScore >= 10) {
         const endTime = Date.now();
         const durationSeconds = ((endTime - startTime) / 1000).toFixed(2);
-        
+
         const now = new Date();
-        const dateTimeString = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-        
+        const dateTimeString =
+          `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ` +
+          `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
         const record = {
           dateTime: dateTimeString,
           seconds: durationSeconds,
@@ -119,10 +127,29 @@ function App() {
         setHistory(updatedHistory);
         localStorage.setItem('gameHistory', JSON.stringify(updatedHistory));
 
+        // ⭐ 星付与ロジック
+        if (durationSeconds < 60) {
+          const recent = updatedHistory.slice(0, 3);
+          const allClear = recent.length === 3 && recent.every(r => !r.isGameOver);
+
+          if (allClear) {
+            setStars(prev => {
+              const newStars = prev + 1;
+
+              if (newStars >= 3) {
+                setFinalCelebration(true);
+              }
+
+              return newStars;
+            });
+          }
+        }
+
         setClearTime(durationSeconds);
         setGameState('clear');
         setCockroaches([]);
       }
+
       return nextScore;
     });
 
@@ -134,7 +161,7 @@ function App() {
     setCockroaches([]);
     setStartTime(Date.now());
     setClearTime(null);
-    setTimeLeft(60); // 🔥追加
+    setTimeLeft(60);
     setGameState('playing');
   };
 
@@ -144,16 +171,51 @@ function App() {
 
   return (
     <div className={`game-container ${gameState === 'playing' ? 'game-floor' : ''}`}>
-      
-      {gameState === 'start' && (
+
+      {/* ⭐ 最終お祝い画面 */}
+      {finalCelebration && (
+        <div className="clear-screen">
+          <div className="cat-header">
+            <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
+          </div>
+
+          <h1 style={{ color: 'gold' }}>🎉 おめでとう！ 🎉</h1>
+          <p>3回連続で1分以内クリアしました！</p>
+          <p style={{ fontSize: '40px' }}>⭐ ⭐ ⭐</p>
+          <p>スペシャルギフトをプレゼント！</p>
+
+          <button
+            className="start-button"
+            onClick={() => {
+              setStars(0);
+              setFinalCelebration(false);
+              setGameState('start');
+            }}
+          >
+            タイトルへ戻る
+          </button>
+        </div>
+      )}
+
+      {/* タイトル画面 */}
+      {gameState === 'start' && !finalCelebration && (
         <div className="start-screen">
           <div className="cat-header">
             <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
           </div>
+
           <h1>ロン君のゴキ退治</h1>
           <p className="instruction-text">1分以内でゴキを10匹退治してね</p>
+
+          {/* ⭐ 星表示 */}
+          {stars > 0 && (
+            <p style={{ fontSize: '24px', color: 'gold' }}>
+              現在の星：{'⭐'.repeat(stars)}
+            </p>
+          )}
+
           <button className="start-button" onClick={startGame}>ゲームスタート</button>
-          
+
           <div className="history-section">
             <h3>過去のクリア記録 (直近3回)</h3>
             {history.length === 0 ? (
@@ -171,93 +233,24 @@ function App() {
         </div>
       )}
 
+      {/* プレイ画面 */}
       {gameState === 'playing' && (
         <>
-          {/* 🔥 スコア＋カウントダウン */}
           <div className="score-display">
             スコア: {score} / 10
             <span
               className={
                 timeLeft <= 5
                   ? 'countdown-display countdown-danger'
-                   : timeLeft <= 10
+                  : timeLeft <= 10
                   ? 'countdown-display countdown-warning'
-                   : 'countdown-display'
-           }
+                  : 'countdown-display'
+              }
             >
               残り: {timeLeft} 秒
             </span>
           </div>
 
-          {/* 🔥 残り10秒以下で注意喚起 */}
           {timeLeft <= 10 && (
             <div style={{
-              position: 'absolute',
-              top: '60px',
-              left: '20px',
-              color: 'red',
-              fontWeight: 'bold',
-              fontSize: '20px',
-              textShadow: '1px 1px 3px black'
-            }}>
-              急いで！あと {timeLeft} 秒！
-            </div>
-          )}
-
-          <div className="game-content">
-            <p className="warning-text">注意：バットゴキブリはマイナスになるから気を付けて！</p>
-            <div className="cat-header">
-              <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
-            </div>
-            
-            <div className="garbage-display">
-              <img 
-                src={trashPileImage} 
-                alt="Trash Pile" 
-                className="garbage-image" 
-              />
-            </div>
-          </div>
-
-          {cockroaches.map((roach) => (
-            <Cockroach 
-              key={roach.id} 
-              id={roach.id}
-              direction={roach.direction} 
-              type={roach.type}
-              position={roach.position} 
-              duration={roach.duration} 
-              onClick={handleCockroachClick}
-            />
-          ))}
-        </>
-      )}
-
-      {gameState === 'clear' && (
-        <div className="clear-screen">
-          <div className="cat-header">
-            <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
-          </div>
-          <h1>ゲームクリア！</h1>
-          <p>クリアタイム: <strong>{clearTime}</strong> 秒</p>
-          <button className="start-button" onClick={startGame}>もう一度プレイ</button>
-          <button className="start-button" style={{ marginTop: '10px', backgroundColor: '#555' }} onClick={backToTitle}>タイトルに戻る</button>
-        </div>
-      )}
-
-      {gameState === 'gameover' && (
-        <div className="clear-screen">
-          <div className="cat-header">
-            <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
-          </div>
-          <h1 style={{ color: 'red' }}>ゲームオーバー</h1>
-          <p>1分が経過しました...</p>
-          <button className="start-button" onClick={startGame}>もう一度プレイ</button>
-          <button className="start-button" style={{ marginTop: '10px', backgroundColor: '#555' }} onClick={backToTitle}>タイトルに戻る</button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default App;
+              position
