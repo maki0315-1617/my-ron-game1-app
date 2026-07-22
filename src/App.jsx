@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Cockroach from './Cockroach';
-import trashPileImage from './images/trash_pile.png'; 
+import trashPileImage from './images/trash_pile.png';
 import blackCatImage from './images/black_cat.png';
 
 const cockroachTypes = ['normal', 'bad', 'special'];
@@ -14,7 +14,7 @@ function App() {
   const [clearTime, setClearTime] = useState(null);
   const [history, setHistory] = useState([]);
 
-  // 🔥 カウントダウン
+  // カウントダウン
   const [timeLeft, setTimeLeft] = useState(60);
 
   // ⭐ 星システム
@@ -35,7 +35,7 @@ function App() {
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    // 🔥 カウントダウン開始
+    // カウントダウン
     const countdown = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -253,4 +253,74 @@ function App() {
 
           {timeLeft <= 10 && (
             <div style={{
-              position
+              position: 'absolute',
+              top: '60px',
+              left: '20px',
+              color: 'red',
+              fontWeight: 'bold',
+              fontSize: '20px',
+              textShadow: '1px 1px 3px black'
+            }}>
+              急いで！あと {timeLeft} 秒！
+            </div>
+          )}
+
+          <div className="game-content">
+            <p className="warning-text">注意：バットゴキブリはマイナスになるから気を付けて！</p>
+            <div className="cat-header">
+              <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
+            </div>
+
+            <div className="garbage-display">
+              <img
+                src={trashPileImage}
+                alt="Trash Pile"
+                className="garbage-image"
+              />
+            </div>
+          </div>
+
+          {cockroaches.map((roach) => (
+            <Cockroach
+              key={roach.id}
+              id={roach.id}
+              direction={roach.direction}
+              type={roach.type}
+              position={roach.position}
+              duration={roach.duration}
+              onClick={handleCockroachClick}
+            />
+          ))}
+        </>
+      )}
+
+      {/* クリア画面 */}
+      {gameState === 'clear' && !finalCelebration && (
+        <div className="clear-screen">
+          <div className="cat-header">
+            <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
+          </div>
+          <h1>ゲームクリア！</h1>
+          <p>クリアタイム: <strong>{clearTime}</strong> 秒</p>
+          <button className="start-button" onClick={startGame}>もう一度プレイ</button>
+          <button className="start-button" style={{ marginTop: '10px', backgroundColor: '#555' }} onClick={backToTitle}>タイトルに戻る</button>
+        </div>
+      )}
+
+      {/* ゲームオーバー画面 */}
+      {gameState === 'gameover' && (
+        <div className="clear-screen">
+          <div className="cat-header">
+            <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
+          </div>
+          <h1 style={{ color: 'red' }}>ゲームオーバー</h1>
+          <p>1分が経過しました...</p>
+          <button className="start-button" onClick={startGame}>もう一度プレイ</button>
+          <button className="start-button" style={{ marginTop: '10px', backgroundColor: '#555' }} onClick={backToTitle}>タイトルに戻る</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
