@@ -45,7 +45,7 @@
     100% { transform: translate(60px, 0) rotate(0deg); }
   }
   
-  ning Animations */
+ /* ning Animations */
   .moveDown {
     animation:
       moveDown linear forwards,
@@ -70,7 +70,7 @@
       realisticMove 0.8s linear infinite;
   }
   
-plosion Effect on Click */
+/*plosion Effect on Click */
   .exploding {
     display: none !important; /* クリックされた瞬間にゴキブリ本体を非表示にしてエフェクトだけ残す */
   }
