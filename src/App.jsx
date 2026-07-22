@@ -300,7 +300,7 @@ function App() {
           <div className="cat-header">
             <img src={blackCatImage} alt="Ron-kun the Black Cat" className="cat-image" />
           </div>
-          <h1>ゲームクリア！</h1>
+          <h1>ゲームクリア！！</h1>
           <p>クリアタイム: <strong>{clearTime}</strong> 秒</p>
           <button className="start-button" onClick={startGame}>もう一度プレイ</button>
           <button className="start-button" style={{ marginTop: '10px', backgroundColor: '#555' }} onClick={backToTitle}>タイトルに戻る</button>
