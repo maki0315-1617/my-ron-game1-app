@@ -39,12 +39,12 @@
   
   @keyframes realisticMove {
     0%   { transform: translate(0, 0) rotate(0deg); }
-    25%  { transform: translate(10px, -8px) rotate(4deg); }
-    50%  { transform: translate(20px, 8px) rotate(-4deg); }
-    75%  { transform: translate(30px, -4px) rotate(2deg); }
-    100% { transform: translate(40px, 0) rotate(0deg); }
+    25%  { transform: translate(6px, -3px) rotate(2deg); }
+    50%  { transform: translate(12px, 3px) rotate(-2deg); }
+    75%  { transform: translate(18px, -2px) rotate(1deg); }
+    100% { transform: translate(24px, 0) rotate(0deg); }
   }
-  
+    
   .cockroach-wiggle {
     animation: realisticMove 0.8s linear infinite;
   }
