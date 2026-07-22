@@ -176,7 +176,15 @@ function App() {
           {/* 🔥 スコア＋カウントダウン */}
           <div className="score-display">
             スコア: {score} / 10
-            <span style={{ marginLeft: '15px', color: timeLeft <= 10 ? 'red' : 'white' }}>
+            <span
+              className={
+                timeLeft <= 5
+                  ? 'countdown-display countdown-danger'
+                   : timeLeft <= 10
+                  ? 'countdown-display countdown-warning'
+                   : 'countdown-display'
+           }
+            >
               残り: {timeLeft} 秒
             </span>
           </div>
