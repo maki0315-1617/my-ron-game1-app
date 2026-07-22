@@ -125,7 +125,7 @@ function App() {
   };
 
   return (
-    <div className="game-container">
+    <div className={`game-container ${gameState === 'playing' ? 'game-floor' : ''}`}>
       {gameState === 'start' && (
         <div className="start-screen">
           <div className="cat-header">

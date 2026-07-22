@@ -134,3 +134,8 @@ h1 {
 .history-section li {
   margin-bottom: 3px;
 }
+.game-floor {
+  background: url('./images/floor_texture.jpg');
+  background-size: cover;
+  background-position: center;
+}
