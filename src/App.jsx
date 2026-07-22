@@ -14,6 +14,9 @@ function App() {
   const [clearTime, setClearTime] = useState(null);
   const [history, setHistory] = useState([]);
 
+  // 🔥 追加：カウントダウン用
+  const [timeLeft, setTimeLeft] = useState(60);
+
   useEffect(() => {
     const savedHistory = localStorage.getItem('gameHistory');
     if (savedHistory) {
@@ -28,6 +31,18 @@ function App() {
   useEffect(() => {
     if (gameState !== 'playing') return;
 
+    // 🔥 カウントダウン開始
+    const countdown = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdown);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // 60秒でゲームオーバー
     const timer = setTimeout(() => {
       const now = new Date();
       const dateTimeString = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
@@ -46,6 +61,7 @@ function App() {
       setCockroaches([]);
     }, 60000);
 
+    // ゴキブリ生成
     const spawnInterval = setInterval(() => {
       const id = Date.now();
       const directions = ['top', 'bottom', 'left', 'right'];
@@ -71,15 +87,16 @@ function App() {
     return () => {
       clearTimeout(timer);
       clearInterval(spawnInterval);
+      clearInterval(countdown); // 🔥追加
     };
   }, [gameState, history]);
 
-  // 引数で id と type を確実に受け取るスコア処理
+  // ゴキクリック処理
   const handleCockroachClick = (id, type) => {
     if (gameState !== 'playing') return;
 
     setScore((prevScore) => {
-      let points = 1; // normal
+      let points = 1;
       if (type === 'bad') points = -3;
       if (type === 'special') points = 2;
 
@@ -117,6 +134,7 @@ function App() {
     setCockroaches([]);
     setStartTime(Date.now());
     setClearTime(null);
+    setTimeLeft(60); // 🔥追加
     setGameState('playing');
   };
 
@@ -126,6 +144,7 @@ function App() {
 
   return (
     <div className={`game-container ${gameState === 'playing' ? 'game-floor' : ''}`}>
+      
       {gameState === 'start' && (
         <div className="start-screen">
           <div className="cat-header">
@@ -154,9 +173,28 @@ function App() {
 
       {gameState === 'playing' && (
         <>
+          {/* 🔥 スコア＋カウントダウン */}
           <div className="score-display">
             スコア: {score} / 10
+            <span style={{ marginLeft: '15px', color: timeLeft <= 10 ? 'red' : 'white' }}>
+              残り: {timeLeft} 秒
+            </span>
           </div>
+
+          {/* 🔥 残り10秒以下で注意喚起 */}
+          {timeLeft <= 10 && (
+            <div style={{
+              position: 'absolute',
+              top: '60px',
+              left: '20px',
+              color: 'red',
+              fontWeight: 'bold',
+              fontSize: '20px',
+              textShadow: '1px 1px 3px black'
+            }}>
+              急いで！あと {timeLeft} 秒！
+            </div>
+          )}
 
           <div className="game-content">
             <p className="warning-text">注意：バットゴキブリはマイナスになるから気を付けて！</p>
