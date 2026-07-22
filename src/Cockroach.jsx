@@ -19,6 +19,7 @@ function Cockroach({ id, direction, type, position, duration, onClick }) {
     wrapperStyle.left = `${position}%`;
     wrapperStyle.top = '-50px';
     animationClass = 'moveDown';
+    imageStyle.transform = 'rotate(180deg)';   // ← 追加（下向きにする）
   } else if (direction === 'bottom') {
     wrapperStyle.left = `${position}%`;
     wrapperStyle.bottom = '-50px';
